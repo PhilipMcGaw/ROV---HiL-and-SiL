@@ -59,7 +59,7 @@ VMware Fusion supports Intel Macs, and Fusion 13 supports Intel Macs that suppor
 
 2. Install Ubuntu
 
-Download the Ubuntu 24.04 LTS desktop ISO and create a new VM in Fusion.
+Download the Ubuntu 24.04 LTS desktop ISO and create a new VM in Fusion. __(I installed 26.04 -- LTS)__
 
 Ubuntu Desktop - https://ubuntu.com/download/desktop
 
@@ -108,12 +108,18 @@ architecture.
 
 Fusion supports selecting the host interface when using bridged networking.
 
+3.1 Auto Login
+
+I am running a VM, Login protection / screen lock is managed by the host OS
+
+
 4. Install VMware tools
 
 Once Ubuntu is running:
 
 sudo apt update
 sudo apt upgrade
+sudo apt autoremove
 
 Then:
 
@@ -121,16 +127,20 @@ sudo apt install open-vm-tools open-vm-tools-desktop
 
 Ubuntu 24.04 uses open-vm-tools rather than the old VMware Tools installer. VMware explicitly recommends this approach for Ubuntu 24.04.
 
+        ** These were already installed at this point **
+
 Then reboot:
 
-sudo reboot
+    sudo reboot
 
 This gives you much better:
 
-mouse integration
-display resizing
-clipboard integration
-VM integration
+ * mouse integration
+ * display resizing
+ * clipboard integration
+ * VM integration
+
+
 5. Install ROS 2 Jazzy
 
 I would use the official deb packages, not compile ROS 2 from source.
@@ -145,7 +155,7 @@ sudo add-apt-repository universe
 
 Then install the ROS repository:
 
-sudo apt install curl -y
+sudo apt install curl
 
 export ROS_APT_SOURCE_VERSION=$(curl -s https://api.github.com/repos/ros-infrastructure/ros-apt-source/releases/latest | grep -F "tag_name" | awk -F'"' '{print $4}')
 
@@ -161,7 +171,9 @@ sudo apt upgrade
 
 And I'd install:
 
-sudo apt install ros-jazzy-desktop
+sudo apt install ros-jazzy-desktop ---- ** Error: Unable to locate package ros-jazzy-desktop **
+
+Available as a snap -- sudo snap install ros-jazzy-desktop
 
 For your application, desktop is worthwhile because it gives you RViz and the graphical tooling.
 
@@ -169,7 +181,7 @@ For your application, desktop is worthwhile because it gives you RViz and the gr
 
 Add:
 
-echo "source /opt/ros/jazzy/setup.bash" >> ~/.bashrc
+echo "source /opt/ros/jazzy/setup.bash" >> ~/.bashrc -- This didn't work as /opt… wasnt there
 
 Then:
 
