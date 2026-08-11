@@ -1,3 +1,20 @@
+# Detailed ROS 2/Gazebo Installation Walkthrough
+
+> A step-by-step companion to [`01_VMware_fusion.md`](01_VMware_fusion.md). Commands and package names should be verified against the current ROS 2 Jazzy and Ubuntu documentation before use.
+
+## Target environment
+
+```text
+Intel MacBook Pro
+└── VMware Fusion
+    └── Ubuntu AMD64
+        ├── ROS 2 Jazzy
+        ├── Gazebo Harmonic
+        ├── RViz2
+        ├── Git and VS Code
+        └── ROV HiL/SiL workspace
+```
+
 Go through creating the Fusion VM and installing Ubuntu 24.04 + ROS 2 Jazzy + Gazebo Harmonic
 
 Absolutely. Let's do this as a clean, reproducible build, and I'll keep the configuration appropriate for your 2017 Intel MacBook Pro and the ROV HIL/SIL project.
@@ -701,3 +718,19 @@ ROS 2 → NATS → Raspberry Pi
 and eventually connect that to your ROV Control repository.
 
 That gives us a very clean fault-isolation strategy: if the HIL rig doesn't work, we know whether the problem is VMware, ROS, Gazebo, the simulation, NATS, or the ROV software, rather than having all six variables change at once.
+# Detailed ROS 2/Gazebo Installation Walkthrough
+
+> A step-by-step companion to [`01_VMware_fusion.md`](01_VMware_fusion.md). Commands and package names should be verified against the current ROS 2 Jazzy and Ubuntu documentation before use.
+
+## Target environment
+
+```text
+Intel MacBook Pro
+└── VMware Fusion
+    └── Ubuntu AMD64
+        ├── ROS 2 Jazzy
+        ├── Gazebo Harmonic
+        ├── RViz2
+        ├── Git and VS Code
+        └── ROV HiL/SiL workspace
+```

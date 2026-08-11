@@ -8,7 +8,7 @@ HiL/SiL always runs as an independent environment: either a standalone VM or ded
 
 ## Boundary
 
-The simulation must expose the same MQTT-facing contract as the real ROV. ROS 2, Gazebo, and the bridge are internal to this repository. Do not make Cockpit or Control depend directly on ROS 2.
+The simulation must expose the same NATS-facing contract as the real ROV. ROS 2, Gazebo, and the bridge are internal to this repository. Do not make Cockpit or Control depend directly on ROS 2.
 
 ```text
 Cockpit ── MQTT ── Control ── MQTT ── HiL bridge ── ROS 2 ── Gazebo
@@ -38,7 +38,7 @@ The older course notes refer to NATS. That is historical planning material; the 
 
 ## Engineering rules
 
-- Keep simulation-facing MQTT topics and payloads compatible with the real ROV services.
+- Keep simulation-facing NATS subjects and payloads compatible with the real ROV services.
 - Start with a simple tank, hull, thrusters, IMU, depth sensor, heading, and camera.
 - Add physical realism only after the command/telemetry loop is repeatable.
 - Do not use simulation success as evidence that real hardware is safe.
@@ -48,4 +48,8 @@ The older course notes refer to NATS. That is historical planning material; the 
 
 ## Documentation-sync rule
 
-Changes to the ROS distribution, Gazebo version, MQTT bridge, simulated sensors, scenarios, workspace layout, or test process must update this file and the relevant documentation in the same change.
+Changes to the ROS distribution, Gazebo version, NATS bridge, simulated sensors, scenarios, workspace layout, or test process must update this file and the relevant documentation in the same change. Every change must include a consistency check of this file; if it is not a true reflection of current behaviour, correct it in the same change. Documentation must remain current, use formal British English, and be written for readers with an engineering degree or equivalent technical experience.
+
+Where SI units are used, place a space between the numerical value and the unit symbol, for example `5 m`, `12 V`, and `20 °C`. Use the degree symbol `°` by preference for angles.
+
+Where this repository uses POSIX shell scripts, they must follow the same verbose diagnostic, strict-error, portable-path, prerequisite-validation, and no-unapproved-system-change standards as the ROV application repositories.

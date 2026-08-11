@@ -624,3 +624,44 @@ Given your electronics/EMC background, I'd approach ROS like this:
 ROS 2 is the distributed software backplane; Gazebo is the virtual physical plant; NATS is the interface between the ROV application layer and the simulation environment.
 
 Once you can make command → actuator → physics → sensor → telemetry work, you've learned the parts of ROS/Gazebo that matter most for this project.
+# ROV HiL/SiL ROS Course
+
+> A practical seven-day learning path for building the ROV software-in-the-loop and hardware-in-the-loop environment.
+
+## Status and scope
+
+These notes are working course material, not a release procedure. Verify package names and installation commands against the selected Ubuntu and ROS 2 release before executing them. The current ROV transport boundary is **NATS Core**; older MQTT references elsewhere in the project are historical, and NATS is the intended bridge between the application services and ROS 2/Gazebo.
+
+> **Documentation requirement:** Documentation must always be kept up to date with implemented changes. All maintained documentation must use formal British English and be written for readers with an engineering degree or equivalent technical experience.
+
+> **Technical notation:** Place a space between numerical values and SI unit symbols, for example `5 m`, `12 V`, and `20 °C`. Use `°` by preference when expressing angles.
+
+## Course map
+
+| Day | Focus | Outcome |
+|---|---|---|
+| 0 | Ubuntu VM, ROS 2, Gazebo, and RViz2 | A working simulation workstation |
+| 0.5 | NATS networking | A verified Pi/server-to-HIL-client connection |
+| 1 | ROS 2 fundamentals | Nodes, topics, messages, publishers, and subscribers |
+| 2 | ROS 2 packages and launch | A buildable workspace and custom messages |
+| 3 | Gazebo | A simple simulated ROV model |
+| 4 | Sensors and actuators | Command-to-motion-to-sensor feedback |
+| 5 | Cameras and environment | A usable underwater simulation view |
+| 6 | NATS ↔ ROS 2 | A bridge between the ROV application layer and simulation |
+| 7 | HIL/SIL scenarios | Repeatable integration tests |
+
+## Related notes
+
+- [VMware Fusion and Ubuntu setup](01_VMware_fusion.md)
+- [Detailed installation walkthrough](02_thing.md)
+- [Repository architecture](../MASTER_CONTEXT.md)
+
+## End-to-end target
+
+```text
+Cockpit → NATS Core → Control → NATS Core → ROS 2/Gazebo
+                                              ↓
+                               simulated sensors/telemetry
+                                              ↓
+                              Control and Datalogger
+```

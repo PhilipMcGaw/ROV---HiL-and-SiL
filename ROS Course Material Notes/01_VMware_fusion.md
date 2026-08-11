@@ -1,3 +1,14 @@
+# VMware Fusion ROS 2/Gazebo Workstation
+
+> Setup notes for a 2017 Intel MacBook Pro running the ROV HiL/SiL environment in an Ubuntu virtual machine.
+
+## Important notes
+
+- Use an **AMD64/x86-64** Ubuntu image on an Intel Mac; do not use ARM64.
+- The target stack is Ubuntu 24.04 LTS, ROS 2 Jazzy, Gazebo Harmonic, `ros_gz`, RViz2, and `colcon`.
+- These are working notes. Confirm current official installation instructions before running commands.
+- HiL/SiL runs independently in its own VM or dedicated machine; it does not use the Cockpit, Control, or Datalogger Python runtimes.
+
 Yes. Given that your MacBook Pro is a 2017 Intel machine, I would actually be quite happy using VMware Fusion for this. It avoids trying to run ROS 2 natively on macOS and gives us the Ubuntu environment that ROS 2 and Gazebo are designed around.
 
 For your ROV HIL/SIL project, I'd build the VM specifically as a ROS/Gazebo development workstation, rather than installing a generic Ubuntu desktop and then adding ROS later.
