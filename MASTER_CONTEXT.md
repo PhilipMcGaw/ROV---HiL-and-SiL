@@ -8,6 +8,8 @@ HiL/SiL always runs as an independent environment: either a standalone VM or ded
 
 ## Boundary
 
+The documented default clone location on the standalone Linux VM or dedicated Linux machine is `~/ROV - HiL and SiL`, beside `~/ROV - Cockpit`, `~/ROV - Control`, and `~/ROV - Datalogger` when those repositories are present. On macOS, use a user-selected workspace beneath the home directory, for example `~/Projects/ROV/ROV - HiL and SiL`. This is a convention for documentation and operator setup, not a hard-coded runtime requirement.
+
 The simulation must expose the same NATS-facing contract as the real ROV. ROS 2, Gazebo, and the bridge are internal to this repository. Do not make Cockpit or Control depend directly on ROS 2.
 
 ```text
@@ -35,6 +37,12 @@ Older project documents refer to MQTT. That is historical migration material; th
 - `tests/` — automated and manual integration-test definitions.
 - `docs/` — maintained project documentation.
 - `ROS Course Material Notes/` — background setup/course material; not authoritative architecture.
+
+The authoritative training order is `ROS Course Material Notes/INDEX.md`: Day 0 environment, Day 0.5 NATS networking, Days 1–2 ROS 2 foundations, Days 3–5 simulation and sensors, Day 6 NATS/ROS 2 bridge, and Day 7 repeatable HiL/SiL scenarios. `01_VMware_fusion.md` and `02_thing.md` are setup companions rather than additional course days.
+
+Supporting course topics are maintained in `docs/`: ROS 2 QoS and time, TF2 frames, URDF/Xacro modelling, sensor fidelity, safety boundaries, logging and replay, automated scenario testing, NATS diagnostics, camera integration, and performance/simulation time. Linux and Git foundations are assumed knowledge and are intentionally not course topics.
+
+The HiL/SiL workstation must use a ROS-supported Ubuntu pairing rather than the newest Ubuntu LTS by default. The current course target is Ubuntu 24.04 LTS AMD64 with ROS 2 Jazzy and Gazebo Harmonic; changing it requires verification of the complete ROS, Gazebo, `ros_gz`, RViz2, and package-support combination.
 
 ## Engineering rules
 
