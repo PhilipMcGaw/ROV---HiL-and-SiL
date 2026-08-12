@@ -29,3 +29,5 @@ Course days:
 - [Day 5 — Cameras and environment](../ROS%20Course%20Material%20Notes/day-5-cameras-environment.md)
 - [Day 6 — NATS and ROS 2](../ROS%20Course%20Material%20Notes/day-6-nats-ros2.md)
 - [Day 7 — HiL/SiL tests](../ROS%20Course%20Material%20Notes/day-7-hil-sil.md)
+- [Documentation currency policy](documentation-policy.md)
+- [Current status](status.md)

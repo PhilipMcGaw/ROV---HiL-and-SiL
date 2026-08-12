@@ -9,12 +9,12 @@ It does not share or require the Python runtimes, virtual environments, or Windo
 ## Planned architecture
 
 ```text
-Cockpit ── MQTT ── Control ── MQTT ── HiL bridge ── ROS 2 ── Gazebo
+Cockpit ── NATS Core ── Control ── NATS Core ── HiL bridge ── ROS 2 ── Gazebo
                                       ▲                 │
                                       └── telemetry ────┘
 ```
 
-The simulation must remain behind the same application-facing MQTT contract as the real ROV. ROS 2 and Gazebo are implementation details of the simulation environment.
+The simulation must remain behind the same application-facing NATS Core contract as the real ROV. ROS 2 and Gazebo are implementation details of the simulation environment.
 
 ## Repository layout
 

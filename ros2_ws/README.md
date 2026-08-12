@@ -8,4 +8,4 @@ Planned packages include:
 - `rov_simulation` — Gazebo world and physics configuration.
 - `rov_sensors` — simulated IMU, depth, heading, and camera adapters.
 - `rov_actuators` — command-to-thruster simulation.
-- `rov_mqtt_bridge` — MQTT to ROS 2 and ROS 2 to MQTT translation.
+- `rov_nats_bridge` — NATS subjects to ROS 2 and ROS 2 to NATS translation.

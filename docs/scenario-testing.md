@@ -3,10 +3,10 @@
 Each scenario should define:
 
 1. Initial vehicle state.
-2. MQTT command or command sequence.
+2. NATS command or command sequence.
 3. Expected actuator response.
 4. Expected simulated movement and sensor response.
-5. Expected MQTT telemetry.
+5. Expected NATS telemetry.
 6. Evidence to be recorded by Datalogger.
 
 The first planned scenario is `forward`:

@@ -11,12 +11,12 @@ HiL/SiL always runs as an independent environment: either a standalone VM or ded
 The simulation must expose the same NATS-facing contract as the real ROV. ROS 2, Gazebo, and the bridge are internal to this repository. Do not make Cockpit or Control depend directly on ROS 2.
 
 ```text
-Cockpit ── MQTT ── Control ── MQTT ── HiL bridge ── ROS 2 ── Gazebo
+Cockpit ── NATS Core ── Control ── NATS Core ── HiL bridge ── ROS 2 ── Gazebo
                                                         │
                                       simulated sensors ┘
 ```
 
-The older course notes refer to NATS. That is historical planning material; the current ROV integration boundary is MQTT unless a future architecture decision explicitly changes it.
+Older project documents refer to MQTT. That is historical migration material; the current ROV integration boundary is NATS Core.
 
 ## Intended simulation scope
 
@@ -30,7 +30,7 @@ The older course notes refer to NATS. That is historical planning material; the 
 ## Repository layout
 
 - `ros2_ws/` — colcon workspace; packages belong under `ros2_ws/src/`.
-- `configs/` — MQTT, bridge, simulator, and environment configuration.
+- `configs/` — NATS, bridge, simulator, and environment configuration.
 - `scenarios/` — scenario inputs and expected results.
 - `tests/` — automated and manual integration-test definitions.
 - `docs/` — maintained project documentation.
@@ -47,6 +47,8 @@ The older course notes refer to NATS. That is historical planning material; the 
 - Document every scenario’s initial conditions, command, expected response, and telemetry checks.
 
 ## Documentation-sync rule
+
+The enforceable policy is `docs/documentation-policy.md`; contributor guidance is `CONTRIBUTING.md`; current status is `docs/status.md`; and the standard-library checks are `tests/test_documentation.py` and `tests/documentation_change_policy.py`, using `tests/documentation_change_policy.json` for path rules and intentional exemptions.
 
 Changes to the ROS distribution, Gazebo version, NATS bridge, simulated sensors, scenarios, workspace layout, or test process must update this file and the relevant documentation in the same change. Every change must include a consistency check of this file; if it is not a true reflection of current behaviour, correct it in the same change. Documentation must remain current, use formal British English, and be written for readers with an engineering degree or equivalent technical experience.
 
