@@ -8,7 +8,7 @@ Planned messages include `ROVTelemetry` with depth, heading, temperature, and ba
 
 ```bash
 colcon build
-source install/setup.bash
+source install/setup.zsh
 ros2 topic list
 ```
 

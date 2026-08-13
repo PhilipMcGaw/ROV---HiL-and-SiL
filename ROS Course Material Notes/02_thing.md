@@ -732,5 +732,5 @@ Intel MacBook Pro
         ├── Gazebo Harmonic
         ├── RViz2
         ├── Git and VS Code
-        └── ROV HiL/SiL workspace
+        └── ROV HiL/SiL workspace (~/ROV---HiL-and-SiL/)
 ```

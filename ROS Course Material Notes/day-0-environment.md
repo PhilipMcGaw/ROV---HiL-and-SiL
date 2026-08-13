@@ -15,13 +15,13 @@ Intel MacBook Pro → VMware Fusion → Ubuntu AMD64
                                       ├── ROS 2 Jazzy
                                       ├── Gazebo Harmonic
                                       ├── RViz2
-                                      └── ROV HiL/SiL workspace
+                                      └── ROV HiL/SiL workspace (~/ROV---HiL-and-SiL/)
 ```
 
 Verify the installation with:
 
 ```bash
-ros2 --version
+ros2 --help
 gz sim
 rviz2
 ```
