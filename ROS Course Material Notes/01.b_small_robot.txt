@@ -157,23 +157,37 @@ We'll eventually add:
 This is already teaching you concepts we'll use for the ROV.
 1. Create the ROS workspace
 In your Ubuntu VM:
-mkdir -p ~/rov-hil/ros2_ws/src
-cd ~/rov-hil/ros2_ws
+mkdir -p ~/ROV---HiL-and-SiL/ros2_ws/src
+cd ~/ROV---HiL-and-SiL/ros2_ws
+
 Check:
 pwd
+
 You should get something like:
-/home/philip/rov-hil/ros2_ws
+
+    /home/skippy/ROV---HiL-and-SiL/ros2_ws
+
 Make sure ROS is sourced:
-source /opt/ros/jazzy/setup.bash
+
+    source /opt/ros/jazzy/setup.bash
+
 Check:
-echo $ROS_DISTRO
+
+    echo $ROS_DISTRO
+
 Expected:
-jazzy
+
+    jazzy
+
+
 2. Create our robot package
 We'll call the package:
 mini_rover_description
 This package will initially contain the robot's physical description.
-cd ~/rov-hil/ros2_ws/src
+
+    cd ~/ROV---HiL-and-SiL/ros2_ws/src
+
+
 
 ros2 pkg create \
   --build-type ament_cmake \
@@ -186,22 +200,30 @@ ros2_ws/
         ├── package.xml
         └── ...
 3. Create the model directories
-cd ~/rov-hil/ros2_ws/src/mini_rover_description
+
+cd ~/ROV---HiL-and-SiL/ros2_ws/src/mini_rover_description
 
 mkdir -p urdf
 mkdir -p launch
 mkdir -p config
 So:
+
 mini_rover_description/
 ├── CMakeLists.txt
 ├── package.xml
 ├── urdf/
 ├── launch/
 └── config/
+
+
+
+
 4. Create the robot description
 For the first version we'll use URDF/Xacro.
 Create:
+
 urdf/mini_rover.urdf.xacro
+
 The robot will consist of:
              chassis
         ┌───────────────┐
@@ -212,6 +234,8 @@ The robot will consist of:
         └───────────────┘
           left       right
           wheel      wheel
+
+
 The important concepts we're establishing are:
 base_link
 wheel links
@@ -221,7 +245,12 @@ collision geometry
 visual geometry
 These concepts will transfer directly to the eventual ROV model.
 Gazebo's robot modelling documentation similarly starts with a simple two-wheeled differential-drive robot. Gazebo Simulator
+
+
 5. Put this in mini_rover.urdf.xacro
+
+
+
 <?xml version="1.0"?>
 
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro"
@@ -392,18 +421,21 @@ Gazebo's robot modelling documentation similarly starts with a simple two-wheele
   </joint>
 
 </robot>
+
+
+
+
 This is intentionally simple.
 We're not yet adding Gazebo plugins.
 First we want to prove that ROS can generate the robot description.
+
 6. Check the Xacro
-Install Xacro if necessary:
-sudo apt install ros-jazzy-xacro
-Then:
-cd ~/rov-hil/ros2_ws
+
+    cd ~/ROV---HiL-and-SiL/ros2_ws
 Build:
-colcon build
+    colcon build
 Source the workspace:
-source install/setup.bash
+    source install/setup.zsh
 Now generate the URDF:
 ros2 run xacro xacro \
 src/mini_rover_description/urdf/mini_rover.urdf.xacro \
@@ -462,7 +494,7 @@ def generate_launch_description():
     ])
 We'll improve this later; right now it's just a learning exercise.
 9. Build again
-cd ~/rov-hil/ros2_ws
+cd ~/ROV---HiL-and-SiL/ros2_ws
 
 colcon build
 
@@ -471,7 +503,7 @@ Then:
 ros2 launch mini_rover_description display.launch.py
 Open another terminal:
 source /opt/ros/jazzy/setup.bash
-source ~/rov-hil/ros2_ws/install/setup.bash
+source ~/ROV---HiL-and-SiL/ros2_ws/install/setup.bash
 Then:
 ros2 topic list
 You should see things including:
@@ -603,4 +635,4 @@ with an ROV 6-DOF motion model:
                    │
              T1 T2 T3 T4 T5 T6
 That is the point where your real ROV Control architecture starts becoming useful.
-One thing I would change from our earlier plan: don't put this little robot straight into the existing GitHub repository yet. Keep it in ~/rov-hil/ros2_ws as a throwaway learning environment until we have proved the whole ROS/Gazebo chain. Then we can create the proper rov-hil repository structure around what we've learned.
+One thing I would change from our earlier plan: don't put this little robot straight into the existing GitHub repository yet. Keep it in ~/ROV---HiL-and-SiL/ros2_ws as a throwaway learning environment until we have proved the whole ROS/Gazebo chain. Then we can create the proper ROV---HiL-and-SiL repository structure around what we've learned.
