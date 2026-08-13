@@ -14,6 +14,7 @@ Yes. Given that your MacBook Pro is a 2017 Intel machine, I would actually be qu
 For your ROV HIL/SIL project, I'd build the VM specifically as a ROS/Gazebo development workstation, rather than installing a generic Ubuntu desktop and then adding ROS later.
 
 My recommended stack
+
 2017 MacBook Pro
 Intel x86-64
         │
@@ -43,9 +44,7 @@ I'd use Ubuntu 24.04 LTS Desktop, 64-bit Intel/AMD.
 
 Your 2017 Mac is Intel, so you want:
 
-Architecture: amd64 / x86_64
-
-not ARM.
+Architecture: amd64 / x86_64 (not ARM.)
 
 ROS 2 Jazzy officially supports Ubuntu Noble 24.04 on 64-bit x86.
 
@@ -170,8 +169,7 @@ sudo apt install curl
 
 export ROS_APT_SOURCE_VERSION=$(curl -s https://api.github.com/repos/ros-infrastructure/ros-apt-source/releases/latest | grep -F "tag_name" | awk -F'"' '{print $4}')
 
-curl -L -o /tmp/ros2-apt-source.deb \
-"https://github.com/ros-infrastructure/ros-apt-source/releases/download/${ROS_APT_SOURCE_VERSION}/ros2-apt-source_${ROS_APT_SOURCE_VERSION}.$(. /etc/os-release && echo ${UBUNTU_CODENAME:-${VERSION_CODENAME}})_all.deb"
+curl -L -o /tmp/ros2-apt-source.deb "https://github.com/ros-infrastructure/ros-apt-source/releases/download/${ROS_APT_SOURCE_VERSION}/ros2-apt-source_${ROS_APT_SOURCE_VERSION}.$(. /etc/os-release && echo ${UBUNTU_CODENAME:-${VERSION_CODENAME}})_all.deb"
 
 sudo dpkg -i /tmp/ros2-apt-source.deb
 
@@ -179,32 +177,65 @@ Then:
 
 sudo apt update
 sudo apt upgrade
+sudo apt full-upgrade
+
+sudo apt install git curl wget build-essential cmake python3-pip python3-venv python3-dev software-properties-common
+sudo apt install software-properties-common
 
 And I'd install:
 
-sudo apt install ros-jazzy-desktop ---- ** Error: Unable to locate package ros-jazzy-desktop **
-
-Available as a snap -- sudo snap install ros-jazzy-desktop
+sudo apt install ros-jazzy-desktop
 
 For your application, desktop is worthwhile because it gives you RViz and the graphical tooling.
 
+
+--- my customisations: ----
+
+Setup the basic environment
+
+sudo apt install nano zsh git neofetch htop dialog rcm
+
+install ohmyzsh
+
+sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+
+edit .zshrc and change ZSH_THEME=“robbyrussell” to ZSH_THEME=“clean” #CASE_SENSITIVE=“true” to CASE_SENSITIVE=“false”
+
+get neofetch working, nano .zshrc and add the following two lines
+
+clear
+neofetch
+
+chsh -s $(which zsh)
+
+reboot the computer
+
+--- end ---
+
 6. Automatically source ROS
 
-Add:
-
-echo "source /opt/ros/jazzy/setup.bash" >> ~/.bashrc -- This didn't work as /opt… wasnt there
+echo "source /opt/ros/jazzy/setup.bash" >> ~/.bashrc
+echo "source /opt/ros/jazzy/setup.zsh" >> ~/.zshrc
 
 Then:
 
-source ~/.bashrc
+source ~/.zshrc
+(if using bash - source ~/.bashrc)
 
-Check:
 
-ros2 --version
+printenv ROS_DISTRO
 
-And:
+should return jazzy
+
+ros2 --help
+
+If you get the ROS 2 command list, we're alive.
 
 ros2 doctor
+
+
+
+
 7. Test ROS before touching Gazebo
 
 Don't install your ROV stuff yet.
@@ -229,9 +260,9 @@ ros2 topic list
 
 You should see:
 
-/chatter
 /parameter_events
 /rosout
+
 8. Install Gazebo Harmonic
 
 For Jazzy, Gazebo Harmonic is the pairing I'd use.
@@ -242,6 +273,8 @@ For your project, I'd actually install the ROS integration package:
 
 sudo apt install ros-jazzy-ros-gz
 
+reboot
+
 That gives you the ROS ↔ Gazebo integration.
 
 You can then check:
@@ -249,6 +282,44 @@ You can then check:
 gz sim
 
 You should get the Gazebo GUI.
+
+
+
+--- my customisations: ----
+
+sudo apt install openssh-server openssh-client
+
+ allow passwords for ssh
+
+Edit the ssh config file
+
+sudo nano /etc/ssh/sshd_config
+
+
+put
+
+    ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBZXuVXuc19rqZAfSH+CzeDTP+epLlpmMvryJeuXqVO9 skippy@Thrudhr.local
+
+in .ssh/authorized_keys
+
+
+then we need to make our own key
+
+ssh-keygen -t ed25519 -C "skippy@ROV-hil-sil.local"
+
+The public key needs to be put on github
+
+
+
+
+sudo apt install python3-colcon-common-extensions python3-rosdep python3-vcstool
+sudo rosdep init
+rosdep update
+
+
+--- end ---
+
+
 
 9. Test ROS ↔ Gazebo
 
@@ -284,9 +355,13 @@ Once that works, we know the entire simulation pipeline is functional.
 
 I'd keep the ROS workspace inside the HIL repository, consistent with what we discussed earlier.
 
+we have the git repo now…
+
+git clone git@github.com:PhilipMcGaw/ROV---HiL-and-SiL.git
+
 Something along these lines:
 
-rov-hil/
+ROV---HiL-and-SiL/
 │
 ├── README.md
 ├── docker/
@@ -416,7 +491,7 @@ VMware Fusion
     ├── RViz
     ├── VS Code
     ├── Git
-    └── rov-hil
+    └── rov-hil (~/ROV---HiL-and-SiL)
 
 Then take a VM snapshot immediately after ROS + Gazebo have passed their basic tests.
 
@@ -425,4 +500,12 @@ That gives you a known-good baseline. If we subsequently break Gazebo, ROS depen
 And I would not install NATS inside this VM as a server. The VM should be a NATS client connecting to the Raspberry Pi, as we established earlier.
 
 The next logical step would be for us to
+
 go through creating the Fusion VM and installing Ubuntu 24.04 + ROS 2 Jazzy + Gazebo Harmonic, one stage at a time, including the Fusion settings I'd use for a 2017 MacBook Pro.
+
+
+
+--- next ----
+
+
+cd ~/ROV---HiL-and-SiL/ros2_ws/src
