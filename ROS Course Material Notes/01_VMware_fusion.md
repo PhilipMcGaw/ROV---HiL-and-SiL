@@ -69,7 +69,7 @@ VMware Fusion supports Intel Macs, and Fusion 13 supports Intel Macs that suppor
 
 2. Install Ubuntu
 
-Download the Ubuntu 24.04 LTS desktop ISO and create a new VM in Fusion. __(I installed 26.04 -- LTS)__
+Download the Ubuntu 24.04 LTS desktop ISO and create a new VM in Fusion. __(I installed Ubuntu 24.04 LTS.)__
 
 Ubuntu Desktop - https://ubuntu.com/download/desktop
 
