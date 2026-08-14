@@ -50,6 +50,16 @@ Complete Day 0 first. The Ubuntu VM should have ROS 2 Jazzy, RViz2, colcon and
 the ROS environment available. Check the base installation in a new terminal:
 
 ```bash
+cd "$HOME/ROV - HiL and SiL/ros2_ws"
+
+colcon build --packages-select mini_rover_description
+
+source install/setup.zsh
+
+ros2 launch mini_rover_description display.launch.py
+```
+
+```
 source /opt/ros/jazzy/setup.bash
 printenv ROS_DISTRO
 ros2 --help
