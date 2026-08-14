@@ -120,7 +120,10 @@ Fusion supports selecting the host interface when using bridged networking.
 
 3.1 Auto Login
 
-I am running a VM, Login protection / screen lock is managed by the host OS
+Auto-login and no guest screen lock are deliberate for this personal VM. The
+host laptop is encrypted and protected by the laptop's credentials, so it is
+the security boundary for the VM. Reconsider this configuration if the VM is
+shared, left unattended, or made accessible remotely.
 
 
 4. Install VMware tools
@@ -189,9 +192,17 @@ sudo apt install ros-jazzy-desktop
 For your application, desktop is worthwhile because it gives you RViz and the graphical tooling.
 
 
---- my customisations: ----
+## Optional personal shell preferences
 
-Setup the basic environment
+The following steps are not required for ROS 2, Gazebo, or the HiL/SiL
+environment. They are personal preferences. Zsh is also the default shell on
+modern macOS, so using it in the VM keeps the terminal experience consistent
+with the host laptop.
+
+`neofetch` is included to provide a clear shell banner that identifies the
+machine currently in use. This is useful when working across the host and VM.
+
+Set up the optional shell environment:
 
 sudo apt install nano zsh git neofetch htop dialog rcm
 
@@ -201,7 +212,8 @@ sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/too
 
 edit .zshrc and change ZSH_THEME=“robbyrussell” to ZSH_THEME=“clean” #CASE_SENSITIVE=“true” to CASE_SENSITIVE=“false”
 
-get neofetch working, nano .zshrc and add the following two lines
+To show the machine-identification banner, add the following two lines to
+`.zshrc`:
 
 clear
 neofetch
@@ -209,8 +221,6 @@ neofetch
 chsh -s $(which zsh)
 
 reboot the computer
-
---- end ---
 
 6. Automatically source ROS
 
@@ -260,6 +270,7 @@ ros2 topic list
 
 You should see:
 
+/chatter
 /parameter_events
 /rosout
 
@@ -285,29 +296,55 @@ You should get the Gazebo GUI.
 
 
 
---- my customisations: ----
+## SSH access and GitHub repository access
 
-sudo apt install openssh-server openssh-client
+SSH serves two separate purposes in this setup. Keep the keys and their roles
+separate.
 
- allow passwords for ssh
+### Laptop to VM administration
 
-Edit the ssh config file
+Install the SSH server in the VM so it can be administered from the laptop
+without keeping the virtual-machine display open:
 
-sudo nano /etc/ssh/sshd_config
+```bash
+sudo apt install openssh-server
+```
 
+Use an Ed25519 key for the laptop-to-VM connection. Add the laptop's
+`ssh-ed25519` public key to the VM user's `~/.ssh/authorized_keys`. This is not
+an `sshd_config` setting. The key lets the laptop authenticate to the VM; do
+not copy a personal public key into this repository or enable password
+authentication merely to make SSH work.
 
-put
+From the laptop, verify the connection with the VM user's address:
 
-    ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBZXuVXuc19rqZAfSH+CzeDTP+epLlpmMvryJeuXqVO9 skippy@Thrudhr.local
+```bash
+ssh <vm-user>@<vm-host-or-address>
+```
 
-in .ssh/authorized_keys
+### VM to GitHub repository access
 
+Generate a separate Ed25519 key pair inside the VM for GitHub access:
 
-then we need to make our own key
+```bash
+ssh-keygen -t ed25519 -C "<vm-user>@rov-hil-sil.local"
+```
 
-ssh-keygen -t ed25519 -C "skippy@ROV-hil-sil.local"
+Add the resulting public key (`~/.ssh/id_ed25519.pub`) to the GitHub account
+that has read/write permission for the ROV repository. The private key remains
+only in the VM. After adding the key, verify GitHub authentication:
 
-The public key needs to be put on github
+```bash
+ssh -T git@github.com
+```
+
+GitHub authentication alone does not grant repository write access; the GitHub
+account associated with the key must also be granted that permission. Verify
+the configured repository remote before making a change:
+
+```bash
+git remote -v
+```
 
 
 
@@ -359,35 +396,24 @@ we have the git repo now…
 
 git clone git@github.com:PhilipMcGaw/ROV---HiL-and-SiL.git "$HOME/ROV - HiL and SiL"
 
-Something along these lines:
+The repository layout is:
 
 ROV - HiL and SiL/
 │
 ├── README.md
-├── docker/
-│
+├── configs/          # simulator, bridge, NATS, and environment configuration
+├── docs/             # maintained architecture and operating documentation
 ├── ros2_ws/
-│   ├── src/
-│   │   ├── rov_gazebo/
-│   │   ├── rov_description/
-│   │   ├── rov_simulation/
-│   │   ├── rov_hil_bridge/
-│   │   └── rov_msgs/
-│   │
-│   ├── build/
-│   ├── install/
-│   └── log/
-│
-├── nats/
-│   └── ...
-│
-├── scripts/
-│
-└── config/
+│   └── src/          # future ROS packages
+├── scenarios/        # repeatable test scenarios and expected outcomes
+├── scripts/          # build and test helpers
+└── tests/            # automated and manual integration-test definitions
 
 I would not put the ROS workspace in your home directory independently of the Git repository.
 
-The repository should describe the complete HIL environment.
+The repository describes the complete HiL/SiL environment. `ros2_ws/build`,
+`ros2_ws/install`, and `ros2_ws/log` are generated output and must remain out
+of version control.
 
 11. Then bring NATS into it
 
@@ -498,14 +524,3 @@ Then take a VM snapshot immediately after ROS + Gazebo have passed their basic t
 That gives you a known-good baseline. If we subsequently break Gazebo, ROS dependencies, Python packages, etc., you can roll straight back rather than spending hours repairing the installation.
 
 And I would not install NATS inside this VM as a server. The VM should be a NATS client connecting to the Raspberry Pi, as we established earlier.
-
-The next logical step would be for us to
-
-go through creating the Fusion VM and installing Ubuntu 24.04 + ROS 2 Jazzy + Gazebo Harmonic, one stage at a time, including the Fusion settings I'd use for a 2017 MacBook Pro.
-
-
-
---- next ----
-
-
-cd "$HOME/ROV - HiL and SiL/ros2_ws/src"
