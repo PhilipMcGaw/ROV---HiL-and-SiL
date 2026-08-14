@@ -125,6 +125,11 @@ host laptop is encrypted and protected by the laptop's credentials, so it is
 the security boundary for the VM. Reconsider this configuration if the VM is
 shared, left unattended, or made accessible remotely.
 
+If you want the machine to never lock or blank:
+
+gsettings set org.gnome.desktop.screensaver lock-enabled false
+gsettings set org.gnome.desktop.session idle-delay 0
+
 
 4. Install VMware tools
 
