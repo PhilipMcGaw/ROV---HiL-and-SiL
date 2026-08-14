@@ -606,17 +606,17 @@ Part 22 — Create the ROS workspace
 
 Now create the workspace that will eventually become part of your rov-hil repository:
 
-mkdir -p ~/rov-hil/ros2_ws/src
+mkdir -p "$HOME/ROV - HiL and SiL/ros2_ws/src"
 
 Then:
 
-cd ~/rov-hil/ros2_ws
+cd "$HOME/ROV - HiL and SiL/ros2_ws"
 
 Don't create the ROV packages yet.
 
 At this stage we simply want:
 
-~/rov-hil/
+~/ROV - HiL and SiL/
 └── ros2_ws/
     └── src/
 Part 23 — Snapshot the VM
@@ -679,7 +679,7 @@ ROV-HIL-Ubuntu24
 ├── colcon
 ├── rosdep
 │
-└── ~/rov-hil/
+└── ~/ROV - HiL and SiL/
     └── ros2_ws/
         └── src/
 
@@ -732,5 +732,5 @@ Intel MacBook Pro
         ├── Gazebo Harmonic
         ├── RViz2
         ├── Git and VS Code
-        └── ROV HiL/SiL workspace (~/ROV---HiL-and-SiL/)
+        └── ROV HiL/SiL workspace (~/ROV - HiL and SiL/)
 ```

@@ -1,638 +1,368 @@
-Yes — that's the point I'd tackle next. Before bringing your existing ROV repositories into the VM, we should prove the ROS 2 ↔ Gazebo ↔ RViz pipeline with something deliberately tiny.
-I'd make a minimal differential-drive robot, not an ROV yet.
-What we're trying to prove
+# Exercise — Build and inspect a small ROS 2 robot
 
-`````
-             Gazebo Harmonic
-                  │
-             Simple robot
-                  │
-        ┌─────────┴─────────┐
-        │                   │
-   simulated sensors    wheel joints
-        │                   │
-        ▼                   ▼
-      ROS 2              ROS 2
-        │
-        ▼
-      RViz2
-``````
+## Purpose
 
-The robot could have:
-two driven wheels
-a simple chassis
-a simulated IMU
-a simulated camera
-optionally a lidar/depth sensor
-And initially we only need it to drive around in Gazebo and publish ROS 2 topics.
-Why not build the ROV immediately?
-Because there are several independent technologies to validate:
-VMware graphics
-Ubuntu
-ROS 2
-Gazebo Harmonic
-ros_gz
-ROS topics
-sensor simulation
-RViz
-If we jump straight to a six-thruster ROV, a failure could be anywhere.
-With a tiny robot:
+This exercise creates a deliberately simple two-wheel robot and displays it in
+RViz2. It is a learning exercise, not an ROV implementation and not a Gazebo
+or hardware validation result.
 
-```````
-keyboard
-   ↓
-ROS 2 cmd_vel
-   ↓
-Gazebo
-   ↓
-robot moves
-```````
+The exercise proves the first part of the simulation toolchain:
 
-we have a very clear first success criterion.
-Then we can progressively turn it into your actual HIL simulator:
-Phase 1
-Simple wheeled robot
-        ↓
-Phase 2
-ROV body + 6 thrusters
-        ↓
-Phase 3
-IMU + depth + heading
-        ↓
-Phase 4
-Camera
-        ↓
-Phase 5
-NATS bridge
-        ↓
-Phase 6
-ROV Control
-        ↓
-Phase 7
-Physical HID
-And importantly, the physical HID idea you've just described can eventually control the simulated vehicle:
-Physical HID
-    │
-    ▼
-NATS
-    │
-    ▼
-ROV Control
-    │
-    ▼
-ROS 2
-    │
-    ▼
-Gazebo
-    │
-    ▼
-simulated ROV
-    │
-    ├── depth ───────► NATS ───► HID depth display
-    ├── motor state ─► NATS ───► HID LEDs
-    └── faults ──────► NATS ───► HID warning lamps
-That is ultimately the architecture I'd aim for.
-So yes: next I'd build the tiny robot inside your new Ubuntu VM, without touching the existing GitHub project. Once that works, we can use it as the foundation for the ROV simulation rather than debugging ROS installation and your application simultaneously.
+```text
+Xacro → URDF robot description → robot_state_publisher → TF → RViz2
+```
 
+It gives the learner a small, controllable model for understanding links,
+joints, transforms, packages, builds, launch files, and visual inspection
+before adding an underwater vehicle, simulated physics, NATS, or real hardware.
 
+## Learning outcomes
 
+By the end, you should be able to:
 
+- create a ROS 2 package in the HiL/SiL workspace;
+- describe a chassis and two wheels with Xacro and URDF;
+- validate the generated URDF;
+- build and source a colcon workspace;
+- launch `robot_state_publisher` and `joint_state_publisher_gui`;
+- inspect the robot and its transform tree in RViz2; and
+- explain why this is only a model-description milestone, not a moving Gazebo
+  vehicle.
 
+## Scope and safety boundary
 
+Use the independent Ubuntu HiL/SiL workstation. Do not connect the Raspberry
+Pi, NATS Core, motor controllers, propulsion hardware, or a physical HID for
+this exercise. Nothing here sends a command outside the local ROS 2 graph.
 
+The workspace path is:
 
+```text
+~/ROV - HiL and SiL/ros2_ws
+```
 
+Because the repository name contains spaces, shell commands use `"$HOME/ROV -
+HiL and SiL/..."`. Keep the quotation marks.
 
-can I have a guide to make a small robot?
+## Prerequisites
 
+Complete Day 0 first. The Ubuntu VM should have ROS 2 Jazzy, RViz2, colcon and
+the ROS environment available. Check the base installation in a new terminal:
 
+```bash
+source /opt/ros/jazzy/setup.bash
+printenv ROS_DISTRO
+ros2 --help
+rviz2
+```
 
+`printenv ROS_DISTRO` should report `jazzy`, and RViz2 should open. Close RViz2
+before continuing.
 
+Install the packages used by this exercise if they are not already present:
 
+```bash
+sudo apt update
+sudo apt install \
+  ros-jazzy-xacro \
+  ros-jazzy-robot-state-publisher \
+  ros-jazzy-joint-state-publisher-gui \
+  python3-colcon-common-extensions
+```
 
+## 1. Create the workspace and package
 
+Create the workspace if necessary, source Jazzy, and create an `ament_cmake`
+package. Do not run the package-creation command again if the package already
+exists.
 
-
-
-
-
-Yes. I'd make the first robot deliberately boring: a small two-wheel differential-drive robot. This gives you a controlled way to learn the ROS 2/Gazebo relationship before we introduce the six-thruster ROV.
-One caveat: many search results for "Gazebo ROS tutorial" are now Gazebo Classic tutorials, which are obsolete for our Jazzy/Harmonic setup. Gazebo Classic reached EOL in January 2025. Gazebo Simulator So I'll keep the guide aligned with ROS 2 Jazzy + modern Gazebo Harmonic.
-Mini Robot — ROS 2 + Gazebo Harmonic
-What we're going to build
-The finished simulation will be:
-                  Gazebo Harmonic
-                       │
-                 ┌─────▼─────┐
-                 │           │
-                 │   robot   │
-                 │           │
-                 └─┬───────┬─┘
-                   │       │
-                left      right
-                wheel     wheel
-                   │       │
-                   └───┬───┘
-                       │
-                  differential
-                     drive
-                       │
-                       ▼
-                     ROS 2
-                       │
-                 /cmd_vel
-                       │
-                       ▼
-                    teleop
-We'll eventually add:
-                  robot
-                    │
-       ┌────────────┼────────────┐
-       │            │            │
-      IMU         camera       lidar
-       │            │            │
-       └────────────┼────────────┘
-                    │
-                   ROS 2
-This is already teaching you concepts we'll use for the ROV.
-1. Create the ROS workspace
-In your Ubuntu VM:
-mkdir -p ~/ROV---HiL-and-SiL/ros2_ws/src
-cd ~/ROV---HiL-and-SiL/ros2_ws
-
-Check:
-pwd
-
-You should get something like:
-
-    /home/skippy/ROV---HiL-and-SiL/ros2_ws
-
-Make sure ROS is sourced:
-
-    source /opt/ros/jazzy/setup.bash
-
-Check:
-
-    echo $ROS_DISTRO
-
-Expected:
-
-    jazzy
-
-
-2. Create our robot package
-We'll call the package:
-mini_rover_description
-This package will initially contain the robot's physical description.
-
-    cd ~/ROV---HiL-and-SiL/ros2_ws/src
-
-
+```bash
+mkdir -p "$HOME/ROV - HiL and SiL/ros2_ws/src"
+cd "$HOME/ROV - HiL and SiL/ros2_ws"
+source /opt/ros/jazzy/setup.bash
 
 ros2 pkg create \
   --build-type ament_cmake \
+  --dependencies robot_state_publisher xacro \
   mini_rover_description
-You now have:
+```
+
+The important directory is now:
+
+```text
 ros2_ws/
 └── src/
     └── mini_rover_description/
         ├── CMakeLists.txt
         ├── package.xml
-        └── ...
-3. Create the model directories
+        └── src/
+```
 
-cd ~/ROV---HiL-and-SiL/ros2_ws/src/mini_rover_description
+Create directories for the robot description and launch file:
 
-mkdir -p urdf
-mkdir -p launch
-mkdir -p config
-So:
+```bash
+cd "$HOME/ROV - HiL and SiL/ros2_ws/src/mini_rover_description"
+mkdir -p launch urdf
+```
 
-mini_rover_description/
-├── CMakeLists.txt
-├── package.xml
-├── urdf/
-├── launch/
-└── config/
+## 2. Describe the robot
 
+Create `urdf/mini_rover.urdf.xacro` with the following contents. The dimensions
+are in metres, mass in kilograms, and the inertia entries are deliberately
+simple placeholders. They are adequate for visualisation only; do not reuse
+them for Gazebo physics without a proper mass-property calculation.
 
-
-
-4. Create the robot description
-For the first version we'll use URDF/Xacro.
-Create:
-
-urdf/mini_rover.urdf.xacro
-
-The robot will consist of:
-             chassis
-        ┌───────────────┐
-        │               │
-        │               │
-    O───┤               ├───O
-        │               │
-        └───────────────┘
-          left       right
-          wheel      wheel
-
-
-The important concepts we're establishing are:
-base_link
-wheel links
-wheel joints
-inertial properties
-collision geometry
-visual geometry
-These concepts will transfer directly to the eventual ROV model.
-Gazebo's robot modelling documentation similarly starts with a simple two-wheeled differential-drive robot. Gazebo Simulator
-
-
-5. Put this in mini_rover.urdf.xacro
-
-
-
+```xml
 <?xml version="1.0"?>
-
-<robot xmlns:xacro="http://www.ros.org/wiki/xacro"
-       name="mini_rover">
-
-  <!-- Dimensions -->
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="mini_rover">
   <xacro:property name="body_length" value="0.40"/>
-  <xacro:property name="body_width"  value="0.30"/>
+  <xacro:property name="body_width" value="0.30"/>
   <xacro:property name="body_height" value="0.12"/>
-
   <xacro:property name="wheel_radius" value="0.08"/>
-  <xacro:property name="wheel_width"  value="0.04"/>
-
+  <xacro:property name="wheel_width" value="0.04"/>
   <xacro:property name="wheel_separation" value="0.34"/>
 
-  <!-- ======================== -->
-  <!-- Base chassis              -->
-  <!-- ======================== -->
-
   <link name="base_link">
-
     <visual>
-      <origin xyz="0 0 0"/>
+      <origin xyz="0 0 ${wheel_radius}"/>
       <geometry>
         <box size="${body_length} ${body_width} ${body_height}"/>
       </geometry>
+      <material name="blue"><color rgba="0.1 0.3 0.8 1.0"/></material>
     </visual>
-
     <collision>
-      <origin xyz="0 0 0"/>
-      <geometry>
-        <box size="${body_length} ${body_width} ${body_height}"/>
-      </geometry>
+      <origin xyz="0 0 ${wheel_radius}"/>
+      <geometry><box size="${body_length} ${body_width} ${body_height}"/></geometry>
     </collision>
-
     <inertial>
       <mass value="5.0"/>
-
-      <inertia
-        ixx="0.1"
-        ixy="0.0"
-        ixz="0.0"
-        iyy="0.1"
-        iyz="0.0"
-        izz="0.1"/>
+      <inertia ixx="0.05" ixy="0.0" ixz="0.0"
+               iyy="0.08" iyz="0.0" izz="0.10"/>
     </inertial>
-
   </link>
 
+  <xacro:macro name="wheel" params="name y_position">
+    <link name="${name}">
+      <visual>
+        <origin rpy="${pi/2} 0 0"/>
+        <geometry><cylinder radius="${wheel_radius}" length="${wheel_width}"/></geometry>
+        <material name="black"><color rgba="0.05 0.05 0.05 1.0"/></material>
+      </visual>
+      <collision>
+        <origin rpy="${pi/2} 0 0"/>
+        <geometry><cylinder radius="${wheel_radius}" length="${wheel_width}"/></geometry>
+      </collision>
+      <inertial>
+        <mass value="0.5"/>
+        <inertia ixx="0.002" ixy="0.0" ixz="0.0"
+                 iyy="0.001" iyz="0.0" izz="0.002"/>
+      </inertial>
+    </link>
+    <joint name="${name}_joint" type="continuous">
+      <parent link="base_link"/>
+      <child link="${name}"/>
+      <origin xyz="0 ${y_position} 0"/>
+      <axis xyz="0 1 0"/>
+    </joint>
+  </xacro:macro>
 
-  <!-- ======================== -->
-  <!-- Left wheel                -->
-  <!-- ======================== -->
-
-  <link name="left_wheel">
-
-    <visual>
-      <origin xyz="0 0 0" rpy="${pi/2} 0 0"/>
-
-      <geometry>
-        <cylinder
-          radius="${wheel_radius}"
-          length="${wheel_width}"/>
-      </geometry>
-    </visual>
-
-    <collision>
-      <origin xyz="0 0 0" rpy="${pi/2} 0 0"/>
-
-      <geometry>
-        <cylinder
-          radius="${wheel_radius}"
-          length="${wheel_width}"/>
-      </geometry>
-    </collision>
-
-    <inertial>
-      <mass value="0.5"/>
-
-      <inertia
-        ixx="0.01"
-        ixy="0.0"
-        ixz="0.0"
-        iyy="0.01"
-        iyz="0.0"
-        izz="0.01"/>
-    </inertial>
-
-  </link>
-
-
-  <!-- ======================== -->
-  <!-- Right wheel               -->
-  <!-- ======================== -->
-
-  <link name="right_wheel">
-
-    <visual>
-      <origin xyz="0 0 0" rpy="${pi/2} 0 0"/>
-
-      <geometry>
-        <cylinder
-          radius="${wheel_radius}"
-          length="${wheel_width}"/>
-      </geometry>
-    </visual>
-
-    <collision>
-      <origin xyz="0 0 0" rpy="${pi/2} 0 0"/>
-
-      <geometry>
-        <cylinder
-          radius="${wheel_radius}"
-          length="${wheel_width}"/>
-      </geometry>
-    </collision>
-
-    <inertial>
-      <mass value="0.5"/>
-
-      <inertia
-        ixx="0.01"
-        ixy="0.0"
-        ixz="0.0"
-        iyy="0.01"
-        iyz="0.0"
-        izz="0.01"/>
-    </inertial>
-
-  </link>
-
-
-  <!-- ======================== -->
-  <!-- Left wheel joint          -->
-  <!-- ======================== -->
-
-  <joint name="left_wheel_joint"
-         type="continuous">
-
-    <parent link="base_link"/>
-    <child link="left_wheel"/>
-
-    <origin
-      xyz="0 ${wheel_separation/2} 0"
-      rpy="0 0 0"/>
-
-    <axis xyz="0 1 0"/>
-
-  </joint>
-
-
-  <!-- ======================== -->
-  <!-- Right wheel joint         -->
-  <!-- ======================== -->
-
-  <joint name="right_wheel_joint"
-         type="continuous">
-
-    <parent link="base_link"/>
-    <child link="right_wheel"/>
-
-    <origin
-      xyz="0 ${-wheel_separation/2} 0"
-      rpy="0 0 0"/>
-
-    <axis xyz="0 1 0"/>
-
-  </joint>
-
+  <xacro:wheel name="left_wheel" y_position="${wheel_separation / 2}"/>
+  <xacro:wheel name="right_wheel" y_position="${-wheel_separation / 2}"/>
 </robot>
+```
 
+The robot's coordinate convention is the ROS convention: `x` forward, `y`
+left, and `z` up. `base_link` is the root frame. The continuous wheel joints
+let RViz animate the wheels without imposing position limits.
 
+## 3. Validate the Xacro before building
 
+Generate a URDF in `/tmp` and inspect it. This catches malformed XML and Xacro
+expressions before a launch failure obscures the cause.
 
-This is intentionally simple.
-We're not yet adding Gazebo plugins.
-First we want to prove that ROS can generate the robot description.
+```bash
+cd "$HOME/ROV - HiL and SiL/ros2_ws"
+source /opt/ros/jazzy/setup.bash
 
-6. Check the Xacro
-
-    cd ~/ROV---HiL-and-SiL/ros2_ws
-Build:
-    colcon build
-Source the workspace:
-    source install/setup.zsh
-Now generate the URDF:
 ros2 run xacro xacro \
-src/mini_rover_description/urdf/mini_rover.urdf.xacro \
-> /tmp/mini_rover.urdf
-Check the resulting file:
-head /tmp/mini_rover.urdf
-If that works, we know the Xacro is valid.
-7. Install robot-state-publisher
-sudo apt install ros-jazzy-robot-state-publisher
-This package will eventually publish the robot's TF transforms.
-The conceptual relationship is:
-Robot description
-       │
-       ▼
-robot_state_publisher
-       │
-       ▼
-      TF
-       │
-       ├── base_link
-       ├── left_wheel
-       └── right_wheel
-That becomes very important later for your ROV.
-8. Add a launch file
-Create:
-launch/display.launch.py
-Use:
+  src/mini_rover_description/urdf/mini_rover.urdf.xacro \
+  --output /tmp/mini_rover.urdf
+
+head -n 20 /tmp/mini_rover.urdf
+```
+
+Expected result: the command exits successfully and `/tmp/mini_rover.urdf`
+contains a `<robot name="mini_rover">` element. A warning about a legacy Xacro
+ordering mode should be treated as a reason to check the file, not ignored.
+
+## 4. Install the package resources
+
+Replace `CMakeLists.txt` with the following. The `install()` command is
+essential: without it, `ros2 launch` cannot find the launch file and Xacro after
+the package is built.
+
+```cmake
+cmake_minimum_required(VERSION 3.8)
+project(mini_rover_description)
+
+find_package(ament_cmake REQUIRED)
+
+install(
+  DIRECTORY launch urdf
+  DESTINATION share/${PROJECT_NAME}
+)
+
+ament_package()
+```
+
+Add the runtime dependencies inside `<package>` in `package.xml`, immediately
+before the `<export>` section:
+
+```xml
+<exec_depend>robot_state_publisher</exec_depend>
+<exec_depend>joint_state_publisher_gui</exec_depend>
+<exec_depend>xacro</exec_depend>
+```
+
+Keep the existing `ament_cmake` build-tool dependency and the existing package
+metadata produced by `ros2 pkg create`.
+
+## 5. Add a portable launch file
+
+Create `launch/display.launch.py`. It uses the installed package share directory
+rather than a path relative to the current terminal directory, so it works from
+any directory after `colcon build`.
+
+```python
 from launch import LaunchDescription
-from launch_ros.actions import Node
 from launch.substitutions import Command
+from launch_ros.actions import Node
 from launch_ros.parameter_descriptions import ParameterValue
+from ament_index_python.packages import get_package_share_directory
+from pathlib import Path
 
 
 def generate_launch_description():
+    package_share = Path(get_package_share_directory("mini_rover_description"))
+    xacro_file = package_share / "urdf" / "mini_rover.urdf.xacro"
 
     robot_description = ParameterValue(
-        Command([
-            "xacro ",
-            "src/mini_rover_description/urdf/mini_rover.urdf.xacro"
-        ]),
-        value_type=str
+        Command(["xacro ", str(xacro_file)]), value_type=str
     )
 
     return LaunchDescription([
-
         Node(
             package="robot_state_publisher",
             executable="robot_state_publisher",
-            parameters=[
-                {
-                    "robot_description": robot_description
-                }
-            ]
-        )
-
+            name="robot_state_publisher",
+            output="screen",
+            parameters=[{"robot_description": robot_description}],
+        ),
+        Node(
+            package="joint_state_publisher_gui",
+            executable="joint_state_publisher_gui",
+            name="joint_state_publisher_gui",
+            output="screen",
+        ),
     ])
-We'll improve this later; right now it's just a learning exercise.
-9. Build again
-cd ~/ROV---HiL-and-SiL/ros2_ws
+```
 
-colcon build
+## 6. Build and launch the robot
 
-source install/setup.bash
-Then:
-ros2 launch mini_rover_description display.launch.py
-Open another terminal:
+Build only this package on the first run. Source the overlay in every terminal
+that needs to use it.
+
+```bash
+cd "$HOME/ROV - HiL and SiL/ros2_ws"
 source /opt/ros/jazzy/setup.bash
-source ~/ROV---HiL-and-SiL/ros2_ws/install/setup.bash
-Then:
-ros2 topic list
-You should see things including:
-/robot_description
-/robot_state_publisher
-/parameter_events
-/rosout
-10. Look at the robot in RViz
-Open another terminal:
+colcon build --packages-select mini_rover_description
+source install/setup.bash
+
+ros2 launch mini_rover_description display.launch.py
+```
+
+Leave that terminal running. A small joint-state publisher window should open.
+Moving either slider changes a wheel's angle, which is the intended input for
+the next inspection step.
+
+## 7. Inspect the robot in RViz2
+
+Open a second terminal:
+
+```bash
+source /opt/ros/jazzy/setup.bash
+source "$HOME/ROV - HiL and SiL/ros2_ws/install/setup.bash"
 rviz2
-In RViz:
-Add → RobotModel
-Set:
-Description Source: Topic
-and select:
-/robot_description
-You should see our little robot.
-If it appears correctly, you've just created your first ROS robot description.
-11. Now make it actually move
-This is where Gazebo enters.
-We need to add a differential-drive system.
-The modern Gazebo/ROS integration is provided through ros_gz, rather than the old gazebo_ros_pkgs approach you'll see in many older tutorials. The old Gazebo documentation itself warns that those tutorials are for Gazebo Classic and have been superseded. Gazebo Simulator
-We want:
-              /cmd_vel
-                 │
-                 ▼
-              ROS 2
-                 │
-             ros_gz
-                 │
-                 ▼
-        Gazebo differential
-             drive
-                 │
-          ┌──────┴──────┐
-          ▼             ▼
-       left wheel    right wheel
-12. Install the required packages
-You should already have ros-jazzy-ros-gz.
-I'd also install:
-sudo apt install \
-    ros-jazzy-ros-gz-sim \
-    ros-jazzy-ros-gz-bridge \
-    ros-jazzy-teleop-twist-keyboard
-Now we have:
-ROS 2
-├── ros_gz_sim
-├── ros_gz_bridge
-└── teleop_twist_keyboard
-13. Don't worry about the full differential-drive implementation yet
-There's an important reason I'm deliberately stopping short of throwing a huge SDF/URDF file at you.
-For this first exercise, I want you to understand this chain:
-keyboard
-   ↓
-/cmd_vel
-   ↓
-ROS 2
-   ↓
-Gazebo
-   ↓
-wheel velocities
-   ↓
-robot motion
-Once you understand that, the transition to the ROV becomes much easier:
-physical HID
-      ↓
-NATS
-      ↓
-ROV Control
-      ↓
-ROS 2
-      ↓
-Gazebo
-      ↓
-six thrusters
-      ↓
-ROV motion
-That's the architecture we're actually learning.
-14. The next milestone
-I'd therefore split the little robot into four small exercises, rather than trying to build everything in one go:
-Exercise 1 — Robot description
-Xacro
- ↓
-URDF
- ↓
-RViz
-You have the robot visible.
-Exercise 2 — Gazebo
-Xacro
- ↓
-Gazebo
- ↓
-robot appears
-Exercise 3 — Motion
-keyboard
- ↓
-/cmd_vel
- ↓
-Gazebo
- ↓
-robot moves
-Exercise 4 — Sensors
-Add:
-IMU
-camera
-lidar
-and observe:
-ROS 2 topics
-This is particularly useful for your ROV project because the sensors are where simulation starts becoming interesting.
-And then I'd turn it into an ROV
-Once the little robot works, we replace:
-2 wheels
-with:
-6 thrusters
-and replace:
-differential drive
-with an ROV 6-DOF motion model:
-                  ROV
-                   │
-        ┌──────────┼──────────┐
-        │          │          │
-       Surge      Sway      Heave
-        │          │          │
-       Roll       Pitch       Yaw
-        │          │          │
-        └──────────┼──────────┘
-                   │
-              Thruster mixer
-                   │
-             T1 T2 T3 T4 T5 T6
-That is the point where your real ROV Control architecture starts becoming useful.
-One thing I would change from our earlier plan: don't put this little robot straight into the existing GitHub repository yet. Keep it in ~/ROV---HiL-and-SiL/ros2_ws as a throwaway learning environment until we have proved the whole ROS/Gazebo chain. Then we can create the proper ROV---HiL-and-SiL repository structure around what we've learned.
+```
+
+In RViz2:
+
+1. Set **Fixed Frame** to `base_link`.
+2. Click **Add**, choose **RobotModel**, and add the display.
+3. For **Description Source**, select **Topic** and use `/robot_description`
+   if it is not selected automatically.
+4. Click **Add**, choose **TF**, and add it.
+5. Move the sliders in the joint-state publisher window.
+
+Expected result: a blue rectangular chassis and two black wheels appear. The TF
+display shows `base_link`, `left_wheel`, and `right_wheel`; turning a slider
+rotates the corresponding wheel.
+
+## 8. Verify the ROS 2 graph
+
+In a third terminal with both environments sourced, run:
+
+```bash
+ros2 node list
+ros2 topic list
+ros2 run tf2_ros tf2_echo base_link left_wheel
+```
+
+Expected nodes include `/robot_state_publisher` and
+`/joint_state_publisher_gui`. Expected topics include `/joint_states` and
+`/tf`; `/robot_description` is also expected on current Jazzy installations.
+`tf2_echo` should show a transform from `base_link` to `left_wheel` and update
+when its slider moves.
+
+Stop the exercise with `Ctrl+C` in the launch terminal, then close RViz2.
+
+## What this has and has not proved
+
+This exercise proves that the VM can generate and distribute a robot
+description, calculate a transform tree, and render it in RViz2. It has not
+proved any of the following:
+
+- Gazebo starts or renders correctly;
+- a robot has collision behaviour, gravity, traction, buoyancy, or dynamics;
+- `/cmd_vel` makes a robot move;
+- a camera, IMU, depth sensor, or thruster behaves realistically; or
+- NATS, Cockpit, Control, Datalogger, or hardware integration works.
+
+Those are separate milestones. The next exercise should add Gazebo Harmonic and
+`ros_gz` to spawn a model, then add a controller and sensors only after the
+basic simulator launch is repeatable.
+
+## Troubleshooting
+
+| Symptom | Likely cause | Check or correction |
+| --- | --- | --- |
+| `ros2: command not found` | Jazzy is not sourced. | Run `source /opt/ros/jazzy/setup.bash`. |
+| `Package 'mini_rover_description' not found` | The package was not built or the overlay is not sourced. | Run the build command, then source `install/setup.bash`. |
+| `xacro: command not found` | The Xacro package is missing. | Install `ros-jazzy-xacro`. |
+| `ros2 launch` cannot find the launch file | `launch/` and `urdf/` were not installed. | Check `CMakeLists.txt`, rebuild, and source the overlay again. |
+| No model appears in RViz2 | The fixed frame or robot description source is wrong. | Set Fixed Frame to `base_link`; add RobotModel and select `/robot_description`. |
+| Wheel sliders do not change the view | `joint_state_publisher_gui` is not running or TF is hidden. | Check `ros2 node list`, add the TF display, and restart the launch file. |
+| Build errors refer to an old description | Colcon is using stale output. | Correct the source, rebuild the selected package, and source the overlay in each terminal. |
+
+## Extension questions
+
+Before moving on, answer these in your own words:
+
+1. Which file contains the authoritative shape and joint relationship of the
+   robot?
+2. Which node turns the robot description and joint states into TF frames?
+3. Why is a correct visual model insufficient evidence for a working simulator?
+4. Which quantities would need physically justified values before this model
+   could be used for an ROV in Gazebo?
+5. Why must later NATS bridging stay outside the ROS/Gazebo implementation
+   boundary?

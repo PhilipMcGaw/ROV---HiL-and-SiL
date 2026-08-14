@@ -15,7 +15,7 @@ Intel MacBook Pro → VMware Fusion → Ubuntu AMD64
                                       ├── ROS 2 Jazzy
                                       ├── Gazebo Harmonic
                                       ├── RViz2
-                                      └── ROV HiL/SiL workspace (~/ROV---HiL-and-SiL/)
+                                      └── ROV HiL/SiL workspace (~/ROV - HiL and SiL/)
 ```
 
 Verify the installation with:

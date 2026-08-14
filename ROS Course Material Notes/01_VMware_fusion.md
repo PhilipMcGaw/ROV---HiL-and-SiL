@@ -357,11 +357,11 @@ I'd keep the ROS workspace inside the HIL repository, consistent with what we di
 
 we have the git repo now…
 
-git clone git@github.com:PhilipMcGaw/ROV---HiL-and-SiL.git
+git clone git@github.com:PhilipMcGaw/ROV---HiL-and-SiL.git "$HOME/ROV - HiL and SiL"
 
 Something along these lines:
 
-ROV---HiL-and-SiL/
+ROV - HiL and SiL/
 │
 ├── README.md
 ├── docker/
@@ -491,7 +491,7 @@ VMware Fusion
     ├── RViz
     ├── VS Code
     ├── Git
-    └── rov-hil (~/ROV---HiL-and-SiL)
+    └── ROV HiL/SiL workspace (~/ROV - HiL and SiL)
 
 Then take a VM snapshot immediately after ROS + Gazebo have passed their basic tests.
 
@@ -508,4 +508,4 @@ go through creating the Fusion VM and installing Ubuntu 24.04 + ROS 2 Jazzy + Ga
 --- next ----
 
 
-cd ~/ROV---HiL-and-SiL/ros2_ws/src
+cd "$HOME/ROV - HiL and SiL/ros2_ws/src"
