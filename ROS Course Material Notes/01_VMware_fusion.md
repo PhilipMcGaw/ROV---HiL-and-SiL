@@ -1,531 +1,641 @@
-# VMware Fusion ROS 2/Gazebo Workstation
+# VMware Fusion — Ubuntu ROS 2 / Gazebo HIL/SIL Workstation
 
-> Setup notes for a 2017 Intel MacBook Pro running the ROV HiL/SiL environment in an Ubuntu virtual machine.
+## Purpose
 
-## Important notes
+This document is a generic setup guide for an Ubuntu 24.04 LTS virtual machine running in VMware Fusion. The VM is intended as the development and simulation workstation for a ROS 2 / Gazebo HIL/SIL environment.
 
-- Use an **AMD64/x86-64** Ubuntu image on an Intel Mac; do not use ARM64.
-- The target stack is Ubuntu 24.04 LTS, ROS 2 Jazzy, Gazebo Harmonic, `ros_gz`, RViz2, and `colcon`.
-- These are working notes. Confirm current official installation instructions before running commands.
-- HiL/SiL runs independently in its own VM or dedicated machine; it does not use the Cockpit, Control, or Datalogger Python runtimes.
+The guide deliberately avoids personal usernames and machine-specific paths. Use the current Ubuntu user's home directory (`$HOME`) wherever possible.
 
-Yes. Given that your MacBook Pro is a 2017 Intel machine, I would actually be quite happy using VMware Fusion for this. It avoids trying to run ROS 2 natively on macOS and gives us the Ubuntu environment that ROS 2 and Gazebo are designed around.
+## Target stack
 
-For your ROV HIL/SIL project, I'd build the VM specifically as a ROS/Gazebo development workstation, rather than installing a generic Ubuntu desktop and then adding ROS later.
+- VMware Fusion
+- Ubuntu 24.04 LTS Desktop
+- AMD64 / x86-64 guest on an Intel Mac
+- ROS 2 Jazzy
+- Gazebo Harmonic
+- `ros-jazzy-ros-gz`
+- RViz2
+- `colcon`
+- Git / SSH
+- NATS client connectivity for the HIL/SIL architecture
 
-My recommended stack
+The VM is a HIL/SIL workstation. It does not host the Cockpit, Control, or DataLogger application runtimes.
 
-2017 MacBook Pro
-Intel x86-64
-        │
-        ▼
-VMware Fusion
-        │
-        ▼
-Ubuntu 24.04 LTS x86-64
-        │
-        ├── ROS 2 Jazzy
-        │
-        ├── Gazebo Harmonic
-        │
-        ├── ros_gz
-        │
-        ├── colcon
-        │
-        ├── RViz2
-        │
-        └── your ROV-HIL repository
+---
 
-This is currently the sensible combination: ROS 2 Jazzy + Ubuntu 24.04 + Gazebo Harmonic. Gazebo's documentation explicitly recommends this combination for new users.
+# 1. Create the virtual machine
 
-1. Create the VM
+Use the **Ubuntu 24.04 LTS Desktop AMD64** image. On an Intel Mac, use x86-64/AMD64, not ARM64.
 
-I'd use Ubuntu 24.04 LTS Desktop, 64-bit Intel/AMD.
+Recommended starting configuration:
 
-Your 2017 Mac is Intel, so you want:
+| Setting | Recommendation |
+|---|---|
+| CPU | 4 cores |
+| RAM | 6–8 GB |
+| Disk | 60–80 GB |
+| Network | Bridged |
+| Graphics | 3D acceleration enabled initially |
+| Firmware | EFI |
+| Guest OS | Ubuntu 64-bit |
 
-Architecture: amd64 / x86_64 (not ARM.)
+Do not allocate every host CPU core to the VM; macOS and VMware Fusion still need host resources.
 
-ROS 2 Jazzy officially supports Ubuntu Noble 24.04 on 64-bit x86.
+If the host has 16 GB RAM, 8 GB for the VM is a reasonable starting point. With 8 GB total host RAM, use approximately 4 GB and expect Gazebo rendering to be the limiting factor.
 
-For the VM, I'd start with:
+## Display / Retina Macs
 
-Setting	Recommendation
-CPU	4 cores
-RAM	6–8 GB
-Disk	60–80 GB
-Network	Bridged
-Graphics	3D acceleration enabled initially
-Firmware	EFI
-Guest OS	Ubuntu 64-bit
+If the Ubuntu desktop looks soft or fuzzy on a Retina display, check **VMware Fusion → Virtual Machine → Settings → Display** for a Retina/full-resolution option and enable 3D acceleration.
 
-If your Mac has 16 GB RAM, I'd give the VM 8 GB.
+Inside Ubuntu, check **Settings → Displays**. Prefer a high virtual resolution and leave **Fractional Scaling** disabled initially. Do not use fractional scaling to compensate for an incorrectly configured VM display.
 
-If it only has 8 GB, give it 4 GB and accept that Gazebo will be the limiting factor.
+---
 
-I would not give the VM every CPU core. Your Mac still needs resources for VMware, macOS and everything else running on the host.
+# 2. Install Ubuntu
 
-VMware Fusion supports Intel Macs, and Fusion 13 supports Intel Macs that support the relevant macOS versions.
+Install Ubuntu 24.04 LTS Desktop using the normal desktop installation.
 
-2. Install Ubuntu
+Ubuntu Desktop is appropriate because the workstation will use:
 
-Download the Ubuntu 24.04 LTS desktop ISO and create a new VM in Fusion. __(I installed Ubuntu 24.04 LTS.)__
+- RViz2
+- Gazebo
+- graphical debugging
+- terminals
+- VS Code or another graphical editor
 
-Ubuntu Desktop - https://ubuntu.com/download/desktop
+---
 
-I'd choose the normal desktop installation rather than Ubuntu Server.
+# 3. Configure VMware networking
 
-That's important because you're going to be using:
+Use **Bridged Networking** rather than NAT when the VM needs to communicate directly with other machines on the LAN.
 
-RViz
-Gazebo
-visual debugging
-terminals
-VS Code
-graphical development tools
-3. VMware networking
+A typical arrangement is:
 
-This is particularly important for your architecture.
+```text
+                    LAN
+                     │
+          ┌──────────┴──────────┐
+          │                     │
+    Raspberry Pi             Host Mac
+          │                     │
+       NATS server         VMware Fusion
+                                │
+                                ▼
+                           Ubuntu VM
+```
 
-I'd configure the VM's network adapter as:
+Bridged networking gives the VM its own address on the LAN and makes later hardware integration straightforward.
 
-Bridged Networking
+---
 
-rather than NAT.
+# 4. Optional desktop configuration
 
-That gives you something approximately like:
+For a dedicated development VM, automatic login and disabling the guest screen lock may be convenient. These are optional and should not be treated as project requirements.
 
-                     Home/Lab LAN
-                         │
-             ┌───────────┴───────────┐
-             │                       │
-        Raspberry Pi              MacBook
-        192.168.1.x               192.168.1.x
-             │                       │
-          NATS :4222          VMware Fusion
-                                     │
-                                     ▼
-                              Ubuntu VM
-                              192.168.1.x
+To prevent the desktop from locking or blanking:
 
-This means the Ubuntu VM can directly communicate with the Pi.
-
-That's much nicer for your eventual:
-
-ROS 2 ↔ NATS ↔ ROV Control
-
-architecture.
-
-Fusion supports selecting the host interface when using bridged networking.
-
-3.1 Auto Login
-
-Auto-login and no guest screen lock are deliberate for this personal VM. The
-host laptop is encrypted and protected by the laptop's credentials, so it is
-the security boundary for the VM. Reconsider this configuration if the VM is
-shared, left unattended, or made accessible remotely.
-
-If you want the machine to never lock or blank:
-
+```bash
 gsettings set org.gnome.desktop.screensaver lock-enabled false
 gsettings set org.gnome.desktop.session idle-delay 0
+```
 
+Do not use these settings on a shared or unattended system unless the security implications are understood.
 
-4. Install VMware tools
+---
 
-Once Ubuntu is running:
+# 5. Update the Ubuntu installation
 
+Run the package update/upgrade sequence before installing additional software:
+
+```bash
 sudo apt update
-sudo apt upgrade
+sudo apt full-upgrade
+```
+
+`apt update` refreshes the package index. `apt full-upgrade` installs available updates and handles dependency changes.
+
+After package installation or removal, clean up packages that are no longer required:
+
+```bash
 sudo apt autoremove
+```
 
-Then:
+The normal order is therefore:
 
+```text
+sudo apt update
+        ↓
+install / upgrade packages
+        ↓
+sudo apt autoremove
+```
+
+Do not run `apt autoremove` as part of the initial update step. It is a cleanup operation, not a replacement for updating the package index.
+
+---
+
+# 6. Install VMware guest tools
+
+Ubuntu 24.04 uses the Ubuntu-packaged `open-vm-tools` packages.
+
+Install them with:
+
+```bash
 sudo apt install open-vm-tools open-vm-tools-desktop
-
-Ubuntu 24.04 uses open-vm-tools rather than the old VMware Tools installer. VMware explicitly recommends this approach for Ubuntu 24.04.
-
-        ** These were already installed at this point **
+```
 
 Then reboot:
 
-    sudo reboot
+```bash
+sudo reboot
+```
 
-This gives you much better:
+These packages provide VMware integration such as mouse integration, display resizing and clipboard support.
 
- * mouse integration
- * display resizing
- * clipboard integration
- * VM integration
+If the packages are already installed, no further action is required.
 
+---
 
-5. Install ROS 2 Jazzy
+# 7. Install basic development tools
 
-I would use the official deb packages, not compile ROS 2 from source.
+Install the common development dependencies:
 
-The official ROS documentation has the current Jazzy Ubuntu installation procedure.
+```bash
+sudo apt install \
+  build-essential \
+  cmake \
+  curl \
+  git \
+  wget \
+  python3-dev \
+  python3-pip \
+  python3-venv \
+  software-properties-common
+```
 
-The important initial setup is:
+Enable the Ubuntu Universe repository if it is not already enabled:
 
-sudo apt update
-sudo apt install software-properties-common
+```bash
 sudo add-apt-repository universe
+```
 
-Then install the ROS repository:
+Refresh the package index after changing repositories:
 
-sudo apt install curl
+```bash
+sudo apt update
+```
+
+---
+
+# 8. Install ROS 2 Jazzy
+
+Use the official ROS 2 Debian packages rather than building ROS 2 from source.
+
+Install the ROS repository package:
+
+```bash
+sudo apt install curl -y
 
 export ROS_APT_SOURCE_VERSION=$(curl -s https://api.github.com/repos/ros-infrastructure/ros-apt-source/releases/latest | grep -F "tag_name" | awk -F'"' '{print $4}')
 
-curl -L -o /tmp/ros2-apt-source.deb "https://github.com/ros-infrastructure/ros-apt-source/releases/download/${ROS_APT_SOURCE_VERSION}/ros2-apt-source_${ROS_APT_SOURCE_VERSION}.$(. /etc/os-release && echo ${UBUNTU_CODENAME:-${VERSION_CODENAME}})_all.deb"
+curl -L -o /tmp/ros2-apt-source.deb \
+  "https://github.com/ros-infrastructure/ros-apt-source/releases/download/${ROS_APT_SOURCE_VERSION}/ros2-apt-source_${ROS_APT_SOURCE_VERSION}.$(. /etc/os-release && echo ${UBUNTU_CODENAME:-${VERSION_CODENAME}})_all.deb"
 
 sudo dpkg -i /tmp/ros2-apt-source.deb
+```
 
-Then:
+Refresh the package index after adding the ROS repository:
 
+```bash
 sudo apt update
-sudo apt upgrade
-sudo apt full-upgrade
+```
 
-sudo apt install git curl wget build-essential cmake python3-pip python3-venv python3-dev software-properties-common
-sudo apt install software-properties-common
+Install the desktop distribution:
 
-And I'd install:
-
+```bash
 sudo apt install ros-jazzy-desktop
+```
 
-For your application, desktop is worthwhile because it gives you RViz and the graphical tooling.
+`ros-jazzy-desktop` is appropriate for this workstation because it includes RViz2 and the standard graphical ROS tooling.
 
+Optionally clean up afterwards:
 
-## Optional personal shell preferences
+```bash
+sudo apt autoremove
+```
 
-The following steps are not required for ROS 2, Gazebo, or the HiL/SiL
-environment. They are personal preferences. Zsh is also the default shell on
-modern macOS, so using it in the VM keeps the terminal experience consistent
-with the host laptop.
+---
 
-`neofetch` is included to provide a clear shell banner that identifies the
-machine currently in use. This is useful when working across the host and VM.
+# 9. Configure the ROS environment
 
-Set up the optional shell environment:
+For Bash:
 
-sudo apt install nano zsh git neofetch htop dialog rcm
-
-install ohmyzsh
-
-sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
-
-edit .zshrc and change ZSH_THEME=“robbyrussell” to ZSH_THEME=“clean” #CASE_SENSITIVE=“true” to CASE_SENSITIVE=“false”
-
-To show the machine-identification banner, add the following two lines to
-`.zshrc`:
-
-clear
-neofetch
-
-chsh -s $(which zsh)
-
-reboot the computer
-
-6. Automatically source ROS
-
+```bash
 echo "source /opt/ros/jazzy/setup.bash" >> ~/.bashrc
+source ~/.bashrc
+```
+
+For Zsh:
+
+```bash
 echo "source /opt/ros/jazzy/setup.zsh" >> ~/.zshrc
-
-Then:
-
 source ~/.zshrc
-(if using bash - source ~/.bashrc)
+```
 
+Use the configuration for the shell you actually use. Do not add both unless there is a reason to support both shells.
 
+Verify the installation:
+
+```bash
 printenv ROS_DISTRO
-
-should return jazzy
-
 ros2 --help
-
-If you get the ROS 2 command list, we're alive.
-
 ros2 doctor
+```
 
+`ROS_DISTRO` should report:
 
+```text
+jazzy
+```
 
+---
 
-7. Test ROS before touching Gazebo
+# 10. Test ROS 2 before installing project software
 
-Don't install your ROV stuff yet.
+First verify the base ROS 2 installation independently of the ROV project.
 
-First prove that ROS itself works.
+### Terminal 1
 
-Terminal 1:
-
+```bash
 ros2 run demo_nodes_cpp talker
+```
 
-Terminal 2:
+### Terminal 2
 
+```bash
 ros2 run demo_nodes_py listener
+```
 
-You should see the talker publishing and the listener receiving the messages.
+The listener should receive messages from the talker.
 
-That's the basic ROS 2 sanity check recommended by the ROS documentation.
+Then check the active topics:
 
-Then:
-
+```bash
 ros2 topic list
+```
 
-You should see:
+Typical output includes:
 
+```text
 /chatter
 /parameter_events
 /rosout
+```
 
-8. Install Gazebo Harmonic
+Do not proceed to project-specific debugging until this basic ROS test works.
 
-For Jazzy, Gazebo Harmonic is the pairing I'd use.
+---
 
-Gazebo explicitly identifies Jazzy + Harmonic as the recommended combination.
+# 11. Install Gazebo Harmonic and ROS/Gazebo integration
 
-For your project, I'd actually install the ROS integration package:
+ROS 2 Jazzy is paired with Gazebo Harmonic.
 
+Install the ROS/Gazebo integration package:
+
+```bash
 sudo apt install ros-jazzy-ros-gz
+```
 
-reboot
+Test Gazebo:
 
-That gives you the ROS ↔ Gazebo integration.
-
-You can then check:
-
+```bash
 gz sim
+```
 
-You should get the Gazebo GUI.
+The Gazebo GUI should start.
 
+If Gazebo has graphical problems, check VMware Fusion's 3D acceleration and guest display configuration before changing the ROS installation.
 
+---
 
-## SSH access and GitHub repository access
+# 12. Install ROS development tools
 
-SSH serves two separate purposes in this setup. Keep the keys and their roles
-separate.
+Install the tools required to create and build ROS workspaces:
 
-### Laptop to VM administration
+```bash
+sudo apt install \
+  python3-colcon-common-extensions \
+  python3-rosdep \
+  python3-vcstool
+```
 
-Install the SSH server in the VM so it can be administered from the laptop
-without keeping the virtual-machine display open:
+Initialise `rosdep` once:
+
+```bash
+sudo rosdep init
+rosdep update
+```
+
+If `rosdep init` reports that it has already been initialised, do not repeat it. Run:
+
+```bash
+rosdep update
+```
+
+---
+
+# 13. Optional shell customisation
+
+The following is optional and is not required by ROS, Gazebo or the HIL/SIL environment.
+
+Install useful command-line tools:
+
+```bash
+sudo apt install nano zsh htop dialog
+```
+
+If Zsh is required as the default shell:
+
+```bash
+chsh -s "$(which zsh)"
+```
+
+If using Oh My Zsh, treat it as user-specific shell configuration rather than a project dependency.
+
+Avoid making personal shell customisation, banners or themes part of the reproducible HIL/SIL setup.
+
+---
+
+# 14. SSH access to the VM
+
+Install the SSH server if the VM is to be administered remotely from the host:
 
 ```bash
 sudo apt install openssh-server
 ```
 
-Use an Ed25519 key for the laptop-to-VM connection. Add the laptop's
-`ssh-ed25519` public key to the VM user's `~/.ssh/authorized_keys`. This is not
-an `sshd_config` setting. The key lets the laptop authenticate to the VM; do
-not copy a personal public key into this repository or enable password
-authentication merely to make SSH work.
+Use an Ed25519 key for laptop-to-VM authentication and add the laptop's public key to:
 
-From the laptop, verify the connection with the VM user's address:
-
-```bash
-ssh <vm-user>@<vm-host-or-address>
+```text
+~/.ssh/authorized_keys
 ```
 
-### VM to GitHub repository access
-
-Generate a separate Ed25519 key pair inside the VM for GitHub access:
+Connect using:
 
 ```bash
-ssh-keygen -t ed25519 -C "<vm-user>@rov-hil-sil.local"
+ssh <username>@<vm-address>
 ```
 
-Add the resulting public key (`~/.ssh/id_ed25519.pub`) to the GitHub account
-that has read/write permission for the ROV repository. The private key remains
-only in the VM. After adding the key, verify GitHub authentication:
+Do not copy private keys into the VM repository.
+
+---
+
+# 15. GitHub access from the VM
+
+GitHub access is separate from laptop-to-VM SSH access.
+
+Generate an Ed25519 key inside the VM:
+
+```bash
+ssh-keygen -t ed25519 -C "<username>@rov-hil-sil"
+```
+
+Add the public key to the appropriate GitHub account and test authentication:
 
 ```bash
 ssh -T git@github.com
 ```
 
-GitHub authentication alone does not grant repository write access; the GitHub
-account associated with the key must also be granted that permission. Verify
-the configured repository remote before making a change:
+Check the repository remote before making changes:
 
 ```bash
 git remote -v
 ```
 
+The private key must remain inside the VM and must never be committed to the repository.
 
+---
 
+# 16. Clone the HIL/SIL repository
 
-sudo apt install python3-colcon-common-extensions python3-rosdep python3-vcstool
-sudo rosdep init
-rosdep update
+Clone the repository into the current user's home directory using `$HOME` rather than a hard-coded username:
 
+```bash
+git clone <repository-ssh-url> "$HOME/ROV - HiL and SiL"
+```
 
---- end ---
+The ROS workspace should live inside the HIL/SIL repository rather than as a separate workspace in the user's home directory.
 
+A suitable layout is:
 
-
-9. Test ROS ↔ Gazebo
-
-This is the important test for your eventual HIL system.
-
-You want to establish that:
-
-ROS 2
-  │
-  │ ros_gz
-  ▼
-Gazebo
-
-actually works before creating the ROV.
-
-I'd then build a trivial test model:
-
-          Gazebo
-            │
-       simulated IMU
-            │
-            ▼
-         ROS 2
-            │
-        /imu/data
-            │
-            ▼
-          RViz
-
-Once that works, we know the entire simulation pipeline is functional.
-
-10. Then create your HIL/SIL workspace
-
-I'd keep the ROS workspace inside the HIL repository, consistent with what we discussed earlier.
-
-we have the git repo now…
-
-git clone git@github.com:PhilipMcGaw/ROV---HiL-and-SiL.git "$HOME/ROV - HiL and SiL"
-
-The repository layout is:
-
+```text
 ROV - HiL and SiL/
-│
 ├── README.md
-├── configs/          # simulator, bridge, NATS, and environment configuration
-├── docs/             # maintained architecture and operating documentation
+├── configs/
+├── docs/
 ├── ros2_ws/
-│   └── src/          # future ROS packages
-├── scenarios/        # repeatable test scenarios and expected outcomes
-├── scripts/          # build and test helpers
-└── tests/            # automated and manual integration-test definitions
+│   └── src/
+├── scenarios/
+├── scripts/
+└── tests/
+```
 
-I would not put the ROS workspace in your home directory independently of the Git repository.
+Generated ROS workspace directories should not be committed:
 
-The repository describes the complete HiL/SiL environment. `ros2_ws/build`,
-`ros2_ws/install`, and `ros2_ws/log` are generated output and must remain out
-of version control.
+```text
+ros2_ws/build/
+ros2_ws/install/
+ros2_ws/log/
+```
 
-11. Then bring NATS into it
+Add them to `.gitignore`.
 
-This is where your architecture becomes particularly useful.
+---
 
-Your VM would contain:
+# 17. Verify ROS ↔ Gazebo integration
 
+Before creating the ROV simulation, prove that the ROS/Gazebo pipeline works independently.
+
+The intended basic pipeline is:
+
+```text
+Gazebo
+  │
+  ├── simulated sensors
+  └── simulated actuators
+          │
+          ▼
+        ROS 2
+          │
+          ▼
+        RViz2
+```
+
+A useful first milestone is a simple model with an IMU and depth sensor:
+
+```text
+Gazebo
+  │
+  ├── simulated IMU
+  └── simulated depth sensor
+          │
+          ▼
+        ROS 2
+          │
+          ▼
+        RViz2
+```
+
+Do not start with a complex underwater environment. Establish the basic simulation pipeline first.
+
+---
+
+# 18. HIL/SIL architecture
+
+The VM contains the simulation and HIL/SIL development environment:
+
+```text
 Ubuntu VM
-│
 ├── ROS 2
-│
 ├── Gazebo
-│
-├── RViz
-│
-├── rov_hil_bridge
-│
+├── RViz2
+├── HIL/SIL ROS packages
 └── NATS client
-        │
-        │ TCP :4222
-        ▼
-   Raspberry Pi
-        │
-        └── NATS server
+```
 
-The HIL bridge becomes the boundary between the two worlds:
+**NATS is the chosen communication middleware. MQTT is not used.**
 
-                     HIL VM
-             ┌───────────────────┐
-             │                   │
-             │     Gazebo        │
-             │       │           │
-             │       ▼           │
-             │     ROS 2         │
-             │       │           │
-             │       ▼           │
-             │  rov_hil_bridge   │
-             │       │           │
-             └───────┼───────────┘
-                     │
-                    NATS
-                     │
-                     ▼
-              Raspberry Pi
-                     │
-              NATS Server
-                     │
-          ┌──────────┴─────────┐
-          │                    │
-      ROV Control          DataLogger
+NATS should be treated as an explicit part of the project architecture, not as an undecided future transport. The VM uses a NATS client; the NATS server/source of truth is associated with the Raspberry Pi when hardware is introduced.
 
-That's a very clean separation.
+Conceptually:
 
-One concern: Gazebo performance
+```text
+                    HIL/SIL VM
+              ┌─────────────────────┐
+              │                     │
+              │      Gazebo         │
+              │        │            │
+              │        ▼            │
+              │      ROS 2          │
+              │        │            │
+              │        ▼            │
+              │   HIL bridge        │
+              │        │            │
+              └────────┼────────────┘
+                       │
+                      NATS
+                       │
+                       ▼
+                Raspberry Pi
+                       │
+                  NATS Server
+```
 
-This is the part I'd watch carefully on a 2017 MacBook Pro.
+The exact NATS subjects and message definitions should be defined by the project architecture rather than embedded directly into Gazebo models or individual applications.
 
-ROS itself should be fine.
+---
 
-Gazebo is where the VM can become painful because you're effectively doing:
+# 19. Gazebo performance in VMware Fusion
 
+Gazebo is likely to be the most demanding part of this environment on an older Intel Mac.
+
+The rendering path is effectively:
+
+```text
 macOS
   ↓
-VMware
+VMware Fusion
   ↓
 Ubuntu
   ↓
 Gazebo rendering
+```
 
-Fusion's 3D acceleration can use the host GPU, so I'd initially leave Accelerate 3D Graphics enabled. VMware documents this setting under the VM's Display hardware settings.
+Leave **3D acceleration enabled** initially.
 
-If Gazebo becomes unstable or the VM has graphical problems, it's worth testing with 3D acceleration disabled; VMware documents that as the standard troubleshooting switch.
+If Gazebo is unstable or rendering is poor:
 
-For your ROV simulator, I wouldn't start with an elaborate underwater scene.
+1. Confirm `open-vm-tools` and `open-vm-tools-desktop` are installed.
+2. Check the Ubuntu display resolution and scaling.
+3. Check VMware Fusion's 3D acceleration settings.
+4. Only then test alternative graphics configurations.
 
-Start with:
+Start simulation development with a simple environment:
 
-simple tank
-+
-ROV body
-+
-6 thrusters
-+
-IMU
-+
-depth sensor
-+
-camera
+- simple tank/environment
+- ROV body
+- six thrusters
+- IMU
+- depth sensor
+- camera
 
-Then increase complexity.
+Increase scene and physics complexity only after the basic simulation is stable.
 
-What I'd actually do on your Mac
+---
 
-I'd make this a clean VM, rather than modifying an existing Ubuntu VM:
+# 20. Create a known-good baseline
 
+Once the following have been verified:
+
+- Ubuntu 24.04 LTS
+- VMware guest integration
+- correct display behaviour
+- ROS 2 Jazzy
+- ROS 2 demo nodes
+- Gazebo Harmonic
+- ROS/Gazebo integration
+- RViz2
+- Git
+- SSH access
+- HIL/SIL repository
+
+create a **VMware Fusion snapshot**.
+
+This provides a known-good baseline before adding project-specific ROS packages, simulation models, Python dependencies or NATS configuration.
+
+If later development breaks the environment, restore the snapshot rather than rebuilding the workstation from scratch.
+
+---
+
+# Command-order summary
+
+For package management, keep the sequence predictable:
+
+```bash
+# Refresh package information
+sudo apt update
+
+# Bring the system up to date
+sudo apt full-upgrade
+
+# Install the required packages
+sudo apt install <packages>
+
+# Refresh again after adding/changing repositories
+sudo apt update
+
+# Optional cleanup after package changes
+sudo apt autoremove
+```
+
+Do not routinely use both `apt upgrade` and `apt full-upgrade` in the same setup sequence. For this workstation, `full-upgrade` is sufficient for the initial system update.
+
+When a repository is added, always run `apt update` before installing packages from that repository.
+
+---
+
+# Result
+
+The finished VM should provide a generic, reproducible development environment for the ROV HIL/SIL project:
+
+```text
 VMware Fusion
-└── ROV-HIL-Ubuntu
-    ├── Ubuntu 24.04
+└── Ubuntu 24.04 LTS
     ├── ROS 2 Jazzy
     ├── Gazebo Harmonic
-    ├── RViz
-    ├── VS Code
-    ├── Git
-    └── ROV HiL/SiL workspace (~/ROV - HiL and SiL)
-
-Then take a VM snapshot immediately after ROS + Gazebo have passed their basic tests.
-
-That gives you a known-good baseline. If we subsequently break Gazebo, ROS dependencies, Python packages, etc., you can roll straight back rather than spending hours repairing the installation.
-
-And I would not install NATS inside this VM as a server. The VM should be a NATS client connecting to the Raspberry Pi, as we established earlier.
+    ├── RViz2
+    ├── colcon / rosdep / vcstool
+    ├── Git / SSH
+    ├── NATS client
+    └── ~/ROV - HiL and SiL
+```
