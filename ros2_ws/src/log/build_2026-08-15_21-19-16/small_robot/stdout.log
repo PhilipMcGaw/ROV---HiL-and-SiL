@@ -1,0 +1,20 @@
+-- Install configuration: ""
+-- Installing: /home/skippy/ROV - HiL-and-SiL/ros2_ws/src/install/small_robot/share/small_robot/launch
+-- Installing: /home/skippy/ROV - HiL-and-SiL/ros2_ws/src/install/small_robot/share/small_robot/launch/display.launch.py
+-- Installing: /home/skippy/ROV - HiL-and-SiL/ros2_ws/src/install/small_robot/share/small_robot/urdf
+-- Installing: /home/skippy/ROV - HiL-and-SiL/ros2_ws/src/install/small_robot/share/small_robot/urdf/small_robot.urdf.xacro
+-- Installing: /home/skippy/ROV - HiL-and-SiL/ros2_ws/src/install/small_robot/share/ament_index/resource_index/package_run_dependencies/small_robot
+-- Installing: /home/skippy/ROV - HiL-and-SiL/ros2_ws/src/install/small_robot/share/ament_index/resource_index/parent_prefix_path/small_robot
+-- Installing: /home/skippy/ROV - HiL-and-SiL/ros2_ws/src/install/small_robot/share/small_robot/environment/ament_prefix_path.sh
+-- Installing: /home/skippy/ROV - HiL-and-SiL/ros2_ws/src/install/small_robot/share/small_robot/environment/ament_prefix_path.dsv
+-- Installing: /home/skippy/ROV - HiL-and-SiL/ros2_ws/src/install/small_robot/share/small_robot/environment/path.sh
+-- Installing: /home/skippy/ROV - HiL-and-SiL/ros2_ws/src/install/small_robot/share/small_robot/environment/path.dsv
+-- Installing: /home/skippy/ROV - HiL-and-SiL/ros2_ws/src/install/small_robot/share/small_robot/local_setup.bash
+-- Installing: /home/skippy/ROV - HiL-and-SiL/ros2_ws/src/install/small_robot/share/small_robot/local_setup.sh
+-- Installing: /home/skippy/ROV - HiL-and-SiL/ros2_ws/src/install/small_robot/share/small_robot/local_setup.zsh
+-- Installing: /home/skippy/ROV - HiL-and-SiL/ros2_ws/src/install/small_robot/share/small_robot/local_setup.dsv
+-- Up-to-date: /home/skippy/ROV - HiL-and-SiL/ros2_ws/src/install/small_robot/share/small_robot/package.dsv
+-- Installing: /home/skippy/ROV - HiL-and-SiL/ros2_ws/src/install/small_robot/share/ament_index/resource_index/packages/small_robot
+-- Installing: /home/skippy/ROV - HiL-and-SiL/ros2_ws/src/install/small_robot/share/small_robot/cmake/small_robotConfig.cmake
+-- Installing: /home/skippy/ROV - HiL-and-SiL/ros2_ws/src/install/small_robot/share/small_robot/cmake/small_robotConfig-version.cmake
+-- Installing: /home/skippy/ROV - HiL-and-SiL/ros2_ws/src/install/small_robot/share/small_robot/package.xml
