@@ -1,0 +1,24 @@
+[0.019s] Invoking command in '/home/skippy/ROV - HiL-and-SiL/ros2_ws/src/build/small_robot': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/jazzy /usr/bin/cmake --build /home/skippy/ROV - HiL-and-SiL/ros2_ws/src/build/small_robot -- -j4 -l4
+[0.099s] Invoked command in '/home/skippy/ROV - HiL-and-SiL/ros2_ws/src/build/small_robot' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/jazzy /usr/bin/cmake --build /home/skippy/ROV - HiL-and-SiL/ros2_ws/src/build/small_robot -- -j4 -l4
+[0.121s] Invoking command in '/home/skippy/ROV - HiL-and-SiL/ros2_ws/src/build/small_robot': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/jazzy /usr/bin/cmake --install /home/skippy/ROV - HiL-and-SiL/ros2_ws/src/build/small_robot
+[0.137s] -- Install configuration: ""
+[0.137s] -- Installing: /home/skippy/ROV - HiL-and-SiL/ros2_ws/src/install/small_robot/share/small_robot/launch
+[0.137s] -- Installing: /home/skippy/ROV - HiL-and-SiL/ros2_ws/src/install/small_robot/share/small_robot/launch/display.launch.py
+[0.138s] -- Installing: /home/skippy/ROV - HiL-and-SiL/ros2_ws/src/install/small_robot/share/small_robot/urdf
+[0.138s] -- Installing: /home/skippy/ROV - HiL-and-SiL/ros2_ws/src/install/small_robot/share/small_robot/urdf/small_robot.urdf.xacro
+[0.138s] -- Installing: /home/skippy/ROV - HiL-and-SiL/ros2_ws/src/install/small_robot/share/ament_index/resource_index/package_run_dependencies/small_robot
+[0.138s] -- Installing: /home/skippy/ROV - HiL-and-SiL/ros2_ws/src/install/small_robot/share/ament_index/resource_index/parent_prefix_path/small_robot
+[0.139s] -- Installing: /home/skippy/ROV - HiL-and-SiL/ros2_ws/src/install/small_robot/share/small_robot/environment/ament_prefix_path.sh
+[0.139s] -- Installing: /home/skippy/ROV - HiL-and-SiL/ros2_ws/src/install/small_robot/share/small_robot/environment/ament_prefix_path.dsv
+[0.139s] -- Installing: /home/skippy/ROV - HiL-and-SiL/ros2_ws/src/install/small_robot/share/small_robot/environment/path.sh
+[0.140s] -- Installing: /home/skippy/ROV - HiL-and-SiL/ros2_ws/src/install/small_robot/share/small_robot/environment/path.dsv
+[0.140s] -- Installing: /home/skippy/ROV - HiL-and-SiL/ros2_ws/src/install/small_robot/share/small_robot/local_setup.bash
+[0.140s] -- Installing: /home/skippy/ROV - HiL-and-SiL/ros2_ws/src/install/small_robot/share/small_robot/local_setup.sh
+[0.141s] -- Installing: /home/skippy/ROV - HiL-and-SiL/ros2_ws/src/install/small_robot/share/small_robot/local_setup.zsh
+[0.141s] -- Installing: /home/skippy/ROV - HiL-and-SiL/ros2_ws/src/install/small_robot/share/small_robot/local_setup.dsv
+[0.141s] -- Up-to-date: /home/skippy/ROV - HiL-and-SiL/ros2_ws/src/install/small_robot/share/small_robot/package.dsv
+[0.141s] -- Installing: /home/skippy/ROV - HiL-and-SiL/ros2_ws/src/install/small_robot/share/ament_index/resource_index/packages/small_robot
+[0.141s] -- Installing: /home/skippy/ROV - HiL-and-SiL/ros2_ws/src/install/small_robot/share/small_robot/cmake/small_robotConfig.cmake
+[0.142s] -- Installing: /home/skippy/ROV - HiL-and-SiL/ros2_ws/src/install/small_robot/share/small_robot/cmake/small_robotConfig-version.cmake
+[0.142s] -- Installing: /home/skippy/ROV - HiL-and-SiL/ros2_ws/src/install/small_robot/share/small_robot/package.xml
+[0.145s] Invoked command in '/home/skippy/ROV - HiL-and-SiL/ros2_ws/src/build/small_robot' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/jazzy /usr/bin/cmake --install /home/skippy/ROV - HiL-and-SiL/ros2_ws/src/build/small_robot

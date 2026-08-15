@@ -1,0 +1,29 @@
+[0.013s] Invoking command in '/home/skippy/ROV - HiL-and-SiL/ros2_ws/src/build/small_robot': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/jazzy /usr/bin/cmake /home/skippy/ROV - HiL-and-SiL/ros2_ws/src/small_robot -DCMAKE_INSTALL_PREFIX=/home/skippy/ROV - HiL-and-SiL/ros2_ws/src/install/small_robot
+[0.314s] -- The C compiler identification is GNU 13.3.0
+[0.493s] -- The CXX compiler identification is GNU 13.3.0
+[0.539s] -- Detecting C compiler ABI info
+[0.716s] -- Detecting C compiler ABI info - done
+[0.732s] -- Check for working C compiler: /usr/bin/cc - skipped
+[0.733s] -- Detecting C compile features
+[0.734s] -- Detecting C compile features - done
+[0.756s] -- Detecting CXX compiler ABI info
+[0.939s] -- Detecting CXX compiler ABI info - done
+[0.953s] -- Check for working CXX compiler: /usr/bin/c++ - skipped
+[0.953s] -- Detecting CXX compile features
+[0.954s] -- Detecting CXX compile features - done
+[0.999s] -- Found ament_cmake: 2.5.6 (/opt/ros/jazzy/share/ament_cmake/cmake)
+[1.270s] -- Found Python3: /usr/bin/python3 (found version "3.12.3") found components: Interpreter 
+[1.701s] -- Configuring done (1.7s)
+[1.706s] -- Generating done (0.0s)
+[1.715s] -- Build files have been written to: /home/skippy/ROV - HiL-and-SiL/ros2_ws/src/build/small_robot
+[1.730s] Invoked command in '/home/skippy/ROV - HiL-and-SiL/ros2_ws/src/build/small_robot' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/jazzy /usr/bin/cmake /home/skippy/ROV - HiL-and-SiL/ros2_ws/src/small_robot -DCMAKE_INSTALL_PREFIX=/home/skippy/ROV - HiL-and-SiL/ros2_ws/src/install/small_robot
+[1.734s] Invoking command in '/home/skippy/ROV - HiL-and-SiL/ros2_ws/src/build/small_robot': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/jazzy /usr/bin/cmake --build /home/skippy/ROV - HiL-and-SiL/ros2_ws/src/build/small_robot -- -j4 -l4
+[1.814s] Invoked command in '/home/skippy/ROV - HiL-and-SiL/ros2_ws/src/build/small_robot' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/jazzy /usr/bin/cmake --build /home/skippy/ROV - HiL-and-SiL/ros2_ws/src/build/small_robot -- -j4 -l4
+[1.834s] Invoking command in '/home/skippy/ROV - HiL-and-SiL/ros2_ws/src/build/small_robot': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/jazzy /usr/bin/cmake --install /home/skippy/ROV - HiL-and-SiL/ros2_ws/src/build/small_robot
+[1.850s] -- Install configuration: ""
+[1.851s] [31mCMake Error at cmake_install.cmake:46 (file):
+[1.851s]   file INSTALL cannot find "/home/skippy/ROV -
+[1.851s]   HiL-and-SiL/ros2_ws/src/small_robot/launch": No such file or directory.
+[1.852s] 
+[1.852s] [0m
+[1.854s] Invoked command in '/home/skippy/ROV - HiL-and-SiL/ros2_ws/src/build/small_robot' returned '1': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/jazzy /usr/bin/cmake --install /home/skippy/ROV - HiL-and-SiL/ros2_ws/src/build/small_robot
