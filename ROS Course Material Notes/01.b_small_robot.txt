@@ -41,26 +41,21 @@ The workspace path is:
 ~/ROV - HiL and SiL/ros2_ws
 ```
 
-Because the repository name contains spaces, shell commands use `"$HOME/ROV -
-HiL and SiL/..."`. Keep the quotation marks.
+Because the repository name contains spaces, shell commands use
+`"$HOME/ROV - HiL and SiL/..."`. Keep the quotation marks.
+
+> **Shell note:** This exercise assumes ZSH. Use `setup.zsh` when sourcing ROS
+> or the workspace overlay. Do not substitute `setup.bash`.
 
 ## Prerequisites
 
 Complete Day 0 first. The Ubuntu VM should have ROS 2 Jazzy, RViz2, colcon and
-the ROS environment available. Check the base installation in a new terminal:
+the ROS environment available.
 
-```bash
-cd "$HOME/ROV - HiL and SiL/ros2_ws"
+Check the base installation in a new terminal:
 
-colcon build --packages-select mini_rover_description
-
-source install/setup.zsh
-
-ros2 launch mini_rover_description display.launch.py
-```
-
-```
-source /opt/ros/jazzy/setup.bash
+```zsh
+source /opt/ros/jazzy/setup.zsh
 printenv ROS_DISTRO
 ros2 --help
 rviz2
@@ -71,12 +66,13 @@ before continuing.
 
 Install the packages used by this exercise if they are not already present:
 
-```bash
+```zsh
 sudo apt update
 sudo apt install \
   ros-jazzy-xacro \
   ros-jazzy-robot-state-publisher \
   ros-jazzy-joint-state-publisher-gui \
+  ros-jazzy-ament-index-python \
   python3-colcon-common-extensions
 ```
 
@@ -86,15 +82,17 @@ Create the workspace if necessary, source Jazzy, and create an `ament_cmake`
 package. Do not run the package-creation command again if the package already
 exists.
 
-```bash
+Run these commands from the **workspace root**:
+
+```zsh
 mkdir -p "$HOME/ROV - HiL and SiL/ros2_ws/src"
 cd "$HOME/ROV - HiL and SiL/ros2_ws"
-source /opt/ros/jazzy/setup.bash
+source /opt/ros/jazzy/setup.zsh
 
 ros2 pkg create \
   --build-type ament_cmake \
-  --dependencies robot_state_publisher xacro \
-  mini_rover_description
+  --dependencies robot_state_publisher xacro ament_index_python \
+  small_robot_description
 ```
 
 The important directory is now:
@@ -102,7 +100,7 @@ The important directory is now:
 ```text
 ros2_ws/
 └── src/
-    └── mini_rover_description/
+    └── small_robot_description/
         ├── CMakeLists.txt
         ├── package.xml
         └── src/
@@ -110,21 +108,49 @@ ros2_ws/
 
 Create directories for the robot description and launch file:
 
-```bash
-cd "$HOME/ROV - HiL and SiL/ros2_ws/src/mini_rover_description"
+```zsh
+cd "$HOME/ROV - HiL and SiL/ros2_ws/src/small_robot_description"
 mkdir -p launch urdf
 ```
 
+Do not create or build an `install/` directory inside `src/`. The normal colcon
+workspace layout is:
+
+```text
+ros2_ws/
+├── build/
+├── install/
+├── log/
+└── src/
+    └── small_robot_description/
+```
+
+Check that colcon can see the package before continuing:
+
+```zsh
+cd "$HOME/ROV - HiL and SiL/ros2_ws"
+colcon list
+```
+
+Expected result:
+
+```text
+small_robot_description    src/small_robot_description    (ros.ament_cmake)
+```
+
+If `colcon list` returns no packages, stop here and correct the package
+location before building.
+
 ## 2. Describe the robot
 
-Create `urdf/mini_rover.urdf.xacro` with the following contents. The dimensions
+Create `urdf/small_robot.urdf.xacro` with the following contents. The dimensions
 are in metres, mass in kilograms, and the inertia entries are deliberately
 simple placeholders. They are adequate for visualisation only; do not reuse
 them for Gazebo physics without a proper mass-property calculation.
 
 ```xml
 <?xml version="1.0"?>
-<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="mini_rover">
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="small_robot">
   <xacro:property name="body_length" value="0.40"/>
   <xacro:property name="body_width" value="0.30"/>
   <xacro:property name="body_height" value="0.12"/>
@@ -138,12 +164,18 @@ them for Gazebo physics without a proper mass-property calculation.
       <geometry>
         <box size="${body_length} ${body_width} ${body_height}"/>
       </geometry>
-      <material name="blue"><color rgba="0.1 0.3 0.8 1.0"/></material>
+      <material name="blue">
+        <color rgba="0.1 0.3 0.8 1.0"/>
+      </material>
     </visual>
+
     <collision>
       <origin xyz="0 0 ${wheel_radius}"/>
-      <geometry><box size="${body_length} ${body_width} ${body_height}"/></geometry>
+      <geometry>
+        <box size="${body_length} ${body_width} ${body_height}"/>
+      </geometry>
     </collision>
+
     <inertial>
       <mass value="5.0"/>
       <inertia ixx="0.05" ixy="0.0" ixz="0.0"
@@ -155,19 +187,28 @@ them for Gazebo physics without a proper mass-property calculation.
     <link name="${name}">
       <visual>
         <origin rpy="${pi/2} 0 0"/>
-        <geometry><cylinder radius="${wheel_radius}" length="${wheel_width}"/></geometry>
-        <material name="black"><color rgba="0.05 0.05 0.05 1.0"/></material>
+        <geometry>
+          <cylinder radius="${wheel_radius}" length="${wheel_width}"/>
+        </geometry>
+        <material name="black">
+          <color rgba="0.05 0.05 0.05 1.0"/>
+        </material>
       </visual>
+
       <collision>
         <origin rpy="${pi/2} 0 0"/>
-        <geometry><cylinder radius="${wheel_radius}" length="${wheel_width}"/></geometry>
+        <geometry>
+          <cylinder radius="${wheel_radius}" length="${wheel_width}"/>
+        </geometry>
       </collision>
+
       <inertial>
         <mass value="0.5"/>
         <inertia ixx="0.002" ixy="0.0" ixz="0.0"
                  iyy="0.001" iyz="0.0" izz="0.002"/>
       </inertial>
     </link>
+
     <joint name="${name}_joint" type="continuous">
       <parent link="base_link"/>
       <child link="${name}"/>
@@ -185,57 +226,74 @@ The robot's coordinate convention is the ROS convention: `x` forward, `y`
 left, and `z` up. `base_link` is the root frame. The continuous wheel joints
 let RViz animate the wheels without imposing position limits.
 
+The chassis visual and collision geometry is offset by `wheel_radius` in `z`.
+This places the chassis above the wheel axle for this simple visual model.
+
 ## 3. Validate the Xacro before building
 
 Generate a URDF in `/tmp` and inspect it. This catches malformed XML and Xacro
 expressions before a launch failure obscures the cause.
 
-```bash
+```zsh
 cd "$HOME/ROV - HiL and SiL/ros2_ws"
-source /opt/ros/jazzy/setup.bash
+source /opt/ros/jazzy/setup.zsh
 
 ros2 run xacro xacro \
-  src/mini_rover_description/urdf/mini_rover.urdf.xacro \
-  --output /tmp/mini_rover.urdf
+  src/small_robot_description/urdf/small_robot.urdf.xacro \
+  --output /tmp/small_robot.urdf
 
-head -n 20 /tmp/mini_rover.urdf
+head -n 20 /tmp/small_robot.urdf
 ```
 
-Expected result: the command exits successfully and `/tmp/mini_rover.urdf`
-contains a `<robot name="mini_rover">` element. A warning about a legacy Xacro
-ordering mode should be treated as a reason to check the file, not ignored.
+Expected result: the command exits successfully and `/tmp/small_robot.urdf`
+contains a `<robot name="small_robot">` element.
 
-## 4. Install the package resources
+If Xacro reports an error, correct the source file before continuing. Do not
+continue to the build step with an invalid generated URDF.
 
-Replace `CMakeLists.txt` with the following. The `install()` command is
-essential: without it, `ros2 launch` cannot find the launch file and Xacro after
-the package is built.
+## 4. Configure and install the package resources
+
+Replace `CMakeLists.txt` with:
 
 ```cmake
 cmake_minimum_required(VERSION 3.8)
-project(mini_rover_description)
+project(small_robot_description)
 
 find_package(ament_cmake REQUIRED)
 
 install(
-  DIRECTORY launch urdf
+  DIRECTORY
+    launch
+    urdf
   DESTINATION share/${PROJECT_NAME}
 )
 
 ament_package()
 ```
 
-Add the runtime dependencies inside `<package>` in `package.xml`, immediately
+The `install()` command is essential: without it, `ros2 launch` cannot find the
+launch file and Xacro after the package is built.
+
+Make sure `package.xml` contains the following dependencies inside `<package>`,
 before the `<export>` section:
 
 ```xml
+<exec_depend>ament_index_python</exec_depend>
 <exec_depend>robot_state_publisher</exec_depend>
 <exec_depend>joint_state_publisher_gui</exec_depend>
 <exec_depend>xacro</exec_depend>
 ```
 
-Keep the existing `ament_cmake` build-tool dependency and the existing package
-metadata produced by `ros2 pkg create`.
+Keep the existing `ament_cmake` build-tool dependency and the package metadata
+generated by `ros2 pkg create`.
+
+The resulting package name must be `small_robot_description` throughout:
+
+- `package.xml` `<name>small_robot_description</name>`
+- `CMakeLists.txt` `project(small_robot_description)`
+- launch file package lookup
+- `colcon build --packages-select small_robot_description`
+- `ros2 launch small_robot_description display.launch.py`
 
 ## 5. Add a portable launch file
 
@@ -244,20 +302,24 @@ rather than a path relative to the current terminal directory, so it works from
 any directory after `colcon build`.
 
 ```python
+from pathlib import Path
+
+from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.substitutions import Command
 from launch_ros.actions import Node
 from launch_ros.parameter_descriptions import ParameterValue
-from ament_index_python.packages import get_package_share_directory
-from pathlib import Path
 
 
 def generate_launch_description():
-    package_share = Path(get_package_share_directory("mini_rover_description"))
-    xacro_file = package_share / "urdf" / "mini_rover.urdf.xacro"
+    package_share = Path(
+        get_package_share_directory("small_robot_description")
+    )
+    xacro_file = package_share / "urdf" / "small_robot.urdf.xacro"
 
     robot_description = ParameterValue(
-        Command(["xacro ", str(xacro_file)]), value_type=str
+        Command(["xacro", str(xacro_file)]),
+        value_type=str,
     )
 
     return LaunchDescription([
@@ -266,7 +328,9 @@ def generate_launch_description():
             executable="robot_state_publisher",
             name="robot_state_publisher",
             output="screen",
-            parameters=[{"robot_description": robot_description}],
+            parameters=[
+                {"robot_description": robot_description}
+            ],
         ),
         Node(
             package="joint_state_publisher_gui",
@@ -277,18 +341,24 @@ def generate_launch_description():
     ])
 ```
 
+The function name `generate_launch_description()` is required by ROS 2. If it
+is missing or renamed, `ros2 launch` will reject the Python launch file.
+
 ## 6. Build and launch the robot
 
-Build only this package on the first run. Source the overlay in every terminal
-that needs to use it.
+Build only this package on the first run. Run colcon from the **workspace
+root**, not from `src/`.
 
-```bash
+```zsh
 cd "$HOME/ROV - HiL and SiL/ros2_ws"
-source /opt/ros/jazzy/setup.bash
-colcon build --packages-select mini_rover_description
-source install/setup.bash
+source /opt/ros/jazzy/setup.zsh
 
-ros2 launch mini_rover_description display.launch.py
+colcon list
+colcon build --packages-select small_robot_description
+
+source install/setup.zsh
+
+ros2 launch small_robot_description display.launch.py
 ```
 
 Leave that terminal running. A small joint-state publisher window should open.
@@ -299,9 +369,9 @@ the next inspection step.
 
 Open a second terminal:
 
-```bash
-source /opt/ros/jazzy/setup.bash
-source "$HOME/ROV - HiL and SiL/ros2_ws/install/setup.bash"
+```zsh
+source /opt/ros/jazzy/setup.zsh
+source "$HOME/ROV - HiL and SiL/ros2_ws/install/setup.zsh"
 rviz2
 ```
 
@@ -322,15 +392,24 @@ rotates the corresponding wheel.
 
 In a third terminal with both environments sourced, run:
 
-```bash
+```zsh
+source /opt/ros/jazzy/setup.zsh
+source "$HOME/ROV - HiL and SiL/ros2_ws/install/setup.zsh"
+
 ros2 node list
 ros2 topic list
 ros2 run tf2_ros tf2_echo base_link left_wheel
 ```
 
-Expected nodes include `/robot_state_publisher` and
-`/joint_state_publisher_gui`. Expected topics include `/joint_states` and
-`/tf`; `/robot_description` is also expected on current Jazzy installations.
+Expected nodes include:
+
+```text
+/robot_state_publisher
+/joint_state_publisher_gui
+```
+
+Expected topics include `/joint_states` and `/tf`.
+
 `tf2_echo` should show a transform from `base_link` to `left_wheel` and update
 when its slider moves.
 
@@ -356,13 +435,40 @@ basic simulator launch is repeatable.
 
 | Symptom | Likely cause | Check or correction |
 | --- | --- | --- |
-| `ros2: command not found` | Jazzy is not sourced. | Run `source /opt/ros/jazzy/setup.bash`. |
-| `Package 'mini_rover_description' not found` | The package was not built or the overlay is not sourced. | Run the build command, then source `install/setup.bash`. |
+| `ros2: command not found` | Jazzy is not sourced. | Run `source /opt/ros/jazzy/setup.zsh`. |
+| `colcon list` returns no packages | The package is not under `ros2_ws/src/`, or colcon was run from the wrong directory. | Run `cd "$HOME/ROV - HiL and SiL/ros2_ws"` and check `find src -maxdepth 2 -name package.xml -print`. |
+| `Package 'small_robot_description' not found` | The package was not built or the overlay is not sourced. | Run `colcon build --packages-select small_robot_description`, then `source install/setup.zsh`. |
 | `xacro: command not found` | The Xacro package is missing. | Install `ros-jazzy-xacro`. |
 | `ros2 launch` cannot find the launch file | `launch/` and `urdf/` were not installed. | Check `CMakeLists.txt`, rebuild, and source the overlay again. |
+| `InvalidPythonLaunchFileError` mentioning `generate_launch_description()` | The Python launch file does not contain the required function. | Check `display.launch.py` and ensure the function is named exactly `generate_launch_description()`. |
 | No model appears in RViz2 | The fixed frame or robot description source is wrong. | Set Fixed Frame to `base_link`; add RobotModel and select `/robot_description`. |
 | Wheel sliders do not change the view | `joint_state_publisher_gui` is not running or TF is hidden. | Check `ros2 node list`, add the TF display, and restart the launch file. |
-| Build errors refer to an old description | Colcon is using stale output. | Correct the source, rebuild the selected package, and source the overlay in each terminal. |
+| Build errors refer to an old description | Colcon is using stale output. | Correct the source, clean the package output if necessary, rebuild, and source the overlay in each terminal. |
+| An `install/` directory exists inside `src/` | Colcon was accidentally run from `src/`. | Remove the accidental directory and always run colcon from `ros2_ws/`. |
+
+### Clean-build recovery
+
+If the workspace has become confused by an earlier package layout or stale
+build output:
+
+```zsh
+cd "$HOME/ROV - HiL and SiL/ros2_ws"
+
+rm -rf build install log
+
+colcon build --packages-select small_robot_description
+
+source install/setup.zsh
+```
+
+If an accidental `src/install` directory was created, remove only that
+accidental directory:
+
+```zsh
+rm -rf "$HOME/ROV - HiL and SiL/ros2_ws/src/install"
+```
+
+Then return to the workspace root and rebuild.
 
 ## Extension questions
 
