@@ -73,13 +73,13 @@ This exercise does not test:
 The workspace path is:
 
 ```text
-~/ROV - HiL and SiL/ros2_ws
+~/ROV - HiL-and-SiL/ros2_ws
 ```
 
 Because the repository name contains spaces, shell commands use:
 
 ```zsh
-"$HOME/ROV - HiL and SiL/..."
+"$HOME/ROV - HiL-and-SiL/..."
 ```
 
 Keep the quotation marks.

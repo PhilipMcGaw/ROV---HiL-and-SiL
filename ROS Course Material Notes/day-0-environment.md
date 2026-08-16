@@ -71,7 +71,7 @@ Install the required tools using the current ROS 2 Jazzy installation instructio
 Create the project workspace:
 
 ```zsh
-mkdir -p "$HOME/ROV - HiL and SiL/ros2_ws/src"
+mkdir -p "$HOME/ROV - HiL-and-SiL/ros2_ws/src"
 ```
 
 Do not build from `ros2_ws/src`; colcon must be run from `ros2_ws`.
