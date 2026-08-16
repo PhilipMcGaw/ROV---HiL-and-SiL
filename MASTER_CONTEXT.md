@@ -63,3 +63,9 @@ Changes to the ROS distribution, Gazebo version, NATS bridge, simulated sensors,
 Where SI units are used, place a space between the numerical value and the unit symbol, for example `5 m`, `12 V`, and `20 °C`. Use the degree symbol `°` by preference for angles.
 
 Where this repository uses POSIX shell scripts, they must follow the same verbose diagnostic, strict-error, portable-path, prerequisite-validation, and no-unapproved-system-change standards as the ROV application repositories.
+
+Where emails and names are needed, like in <maintainer email="philip@mcgaw.eu">Philip McGaw</maintainer>
+
+Name is Philip McGaw
+email is philip@mcgaw.eu
+website is https://philipmcgaw.com
