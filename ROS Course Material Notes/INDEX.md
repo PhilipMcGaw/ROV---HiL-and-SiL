@@ -14,26 +14,28 @@ Cockpit provides control. Internal application communication uses NATS Core. Cam
 
 ## Course order
 
-| Stage | Lesson | Result |
-|---|---|---|
-| Day 0 | Workstation | Known-good Ubuntu, ROS 2 Jazzy, Gazebo Harmonic, RViz2 and colcon environment |
-| Day 0.5 | NATS networking | Working NATS Core network without requiring the physical ROV |
-| Day 1 | Robot description | Xacro → URDF → TF → RViz2 |
-| Day 2 | ROS 2 fundamentals | Nodes, topics, services, parameters, launch and QoS |
-| Day 3 | Gazebo | Simple model running through ROS 2/Gazebo integration |
-| Day 4 | Vehicle model | Vehicle, thrusters and progressively more realistic motion |
-| Day 5 | Sensors and camera | IMU, depth, heading and simulated camera |
-| Day 6 | NATS ↔ ROS 2 bridge | Application contract mapped to ROS 2 without exposing ROS to Cockpit/Control |
-| Day 7 | HiL/SiL scenarios | Repeatable integration tests and evidence |
+| Stage - Lesson | Result |
+|------|---|
+| [Day 0 — Workstation Setup](day-0-environment.md) | Known-good Ubuntu, ROS 2 Jazzy, Gazebo Harmonic, RViz2 and colcon environment |
+| [Day 0.5 — NATS Networking](day-0-5-nats-networking.md) | Working NATS Core network without requiring the physical ROV |
+| [Day 1 — Robot Description](day-1-robot-description.md) | Xacro → URDF → TF → RViz2 |
+| [Day 2 — ROS 2 Fundamentals](day-2-ros2-fundamentals.md) | Nodes, topics, services, parameters, launch and QoS |
+| [Day 3 — Gazebo](day-3-gazebo.md) | Simple model running through ROS 2/Gazebo integration |
+| [Day 4 — Vehicle Model](day-4-vehicle-model.md) | Vehicle, thrusters and progressively more realistic motion |
+| [Day 5 — Sensors and Camera](day-5-sensors-and-camera.md) | IMU, depth, heading and simulated camera |
+| [Day 6 — NATS ↔ ROS 2 Bridge](day-6-nats-ros2-bridge.md) | Application contract mapped to ROS 2 without exposing ROS to Cockpit/Control |
+| [Day 7 — HiL/SiL Scenarios](day-7-hil-sil-scenarios.md) | Repeatable integration tests and evidence |
+
 
 ## Exit-criteria principle
 
 A day is complete when its practical checks pass. Reading the material is not itself evidence of a working system.
 
-## Setup companions
+## Supporting Material
 
-- `01_VMware_fusion.md` — detailed VMware Fusion and Ubuntu workstation setup.
-- `architecture.md` — current system architecture and boundaries.
+- [Architecture](docs/architecture.md)
+- [VMware Fusion Setup](01_VMware_fusion.md)
+
 
 Historical material has been removed from the main learning path where it duplicates the current setup.
 
