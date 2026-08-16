@@ -86,11 +86,13 @@ Run these commands from the **workspace root**:
 
 ```zsh
 mkdir -p "$HOME/ROV - HiL and SiL/ros2_ws/src"
-
 cd "$HOME/ROV - HiL and SiL/ros2_ws"
 source /opt/ros/jazzy/setup.zsh
 
-ros2 pkg create --build-type ament_cmake --dependencies robot_state_publisher xacro small_robot_description
+ros2 pkg create \
+  --build-type ament_cmake \
+  --dependencies robot_state_publisher xacro ament_index_python \
+  small_robot_description
 ```
 
 The important directory is now:
