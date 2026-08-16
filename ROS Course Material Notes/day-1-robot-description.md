@@ -162,14 +162,20 @@ Do not run the package-creation command again if the package already exists.
 Run these commands from the **workspace root**:
 
 ```zsh
-mkdir -p "$HOME/ROV - HiL and SiL/ros2_ws/src"
-cd "$HOME/ROV - HiL and SiL/ros2_ws"
+mkdir -p "$HOME/ROV - HiL-and-SiL/ros2_ws/src"
+cd "$HOME/ROV - HiL-and-SiL/ros2_ws/src"
 source /opt/ros/jazzy/setup.zsh
 
 ros2 pkg create \
+  small_robot_description \
   --build-type ament_cmake \
-  --dependencies robot_state_publisher xacro ament_index_python \
-  small_robot_description
+  --dependencies robot_state_publisher xacro ament_index_python
+```
+
+After that, for colcon, return to the workspace root:
+```text
+cd "$HOME/ROV - HiL-and-SiL/ros2_ws"
+colcon list
 ```
 
 The package is created under:
@@ -183,13 +189,16 @@ ros2_ws/
         └── src/
 ```
 
+
+
+
 The package-level `src/` directory is not required for this exercise because
 the package contains no C++ or Python nodes.
 
 Create directories for the robot description and launch file:
 
 ```zsh
-cd "$HOME/ROV - HiL and SiL/ros2_ws/src/small_robot_description"
+cd "$HOME/ROV - HiL-and-SiL/ros2_ws/src/small_robot_description"
 mkdir -p launch urdf
 ```
 
@@ -222,10 +231,10 @@ Always run `colcon build` from the **workspace root**:
 
 ```text
 Correct:
-~/ROV - HiL and SiL/ros2_ws
+~/ROV - HiL-and-SiL/ros2_ws
 
 Incorrect:
-~/ROV - HiL and SiL/ros2_ws/src
+~/ROV - HiL-and-SiL/ros2_ws/src
 ```
 
 Colcon creates `build/`, `install/` and `log/` alongside `src/`.
