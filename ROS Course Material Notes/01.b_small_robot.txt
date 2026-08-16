@@ -3,18 +3,35 @@
 ## Purpose
 
 This exercise creates a deliberately simple two-wheel robot and displays it in
-RViz2. It is a learning exercise, not an ROV implementation and not a Gazebo
-or hardware validation result.
+RViz2.
+
+It is a learning exercise, not an ROV implementation and not a Gazebo or
+hardware validation result.
 
 The exercise proves the first part of the simulation toolchain:
 
 ```text
-Xacro → URDF robot description → robot_state_publisher → TF → RViz2
+Xacro
+  │
+  ▼
+URDF robot description
+  │
+  ▼
+robot_state_publisher
+  │
+  ▼
+TF
+  │
+  ▼
+RViz2
 ```
 
 It gives the learner a small, controllable model for understanding links,
 joints, transforms, packages, builds, launch files, and visual inspection
-before adding an underwater vehicle, simulated physics, NATS, or real hardware.
+before adding an underwater vehicle, simulated physics, NATS, or real
+hardware.
+
+---
 
 ## Learning outcomes
 
@@ -25,15 +42,33 @@ By the end, you should be able to:
 - validate the generated URDF;
 - build and source a colcon workspace;
 - launch `robot_state_publisher` and `joint_state_publisher_gui`;
-- inspect the robot and its transform tree in RViz2; and
+- inspect the robot and its transform tree in RViz2;
+- understand the relationship between joint states and TF; and
 - explain why this is only a model-description milestone, not a moving Gazebo
   vehicle.
 
+---
+
 ## Scope and safety boundary
 
-Use the independent Ubuntu HiL/SiL workstation. Do not connect the Raspberry
-Pi, NATS Core, motor controllers, propulsion hardware, or a physical HID for
-this exercise. Nothing here sends a command outside the local ROS 2 graph.
+Use the independent Ubuntu HiL/SiL workstation.
+
+Do not connect the Raspberry Pi, NATS Core, motor controllers, propulsion
+hardware, or any physical ROV hardware for this exercise.
+
+Nothing in this exercise sends a command outside the local ROS 2 graph.
+
+This exercise does not test:
+
+- the physical ROV;
+- Raspberry Pi software;
+- NATS;
+- Gazebo physics;
+- motor control;
+- propulsion;
+- sensors;
+- cameras; or
+- hardware-in-the-loop operation.
 
 The workspace path is:
 
@@ -41,16 +76,35 @@ The workspace path is:
 ~/ROV - HiL and SiL/ros2_ws
 ```
 
-Because the repository name contains spaces, shell commands use
-`"$HOME/ROV - HiL and SiL/..."`. Keep the quotation marks.
+Because the repository name contains spaces, shell commands use:
 
-> **Shell note:** This exercise assumes ZSH. Use `setup.zsh` when sourcing ROS
-> or the workspace overlay. Do not substitute `setup.bash`.
+```zsh
+"$HOME/ROV - HiL and SiL/..."
+```
+
+Keep the quotation marks.
+
+### Shell note
+
+This exercise assumes ZSH.
+
+Use `setup.zsh` when sourcing ROS or the workspace overlay.
+
+Do not substitute `setup.bash`.
+
+---
 
 ## Prerequisites
 
-Complete Day 0 first. The Ubuntu VM should have ROS 2 Jazzy, RViz2, colcon and
-the ROS environment available.
+Complete Day 0 first.
+
+The Ubuntu VM should have:
+
+- Ubuntu 24.04 LTS AMD64;
+- ROS 2 Jazzy;
+- RViz2;
+- colcon; and
+- the ROS environment available.
 
 Check the base installation in a new terminal:
 
@@ -61,10 +115,19 @@ ros2 --help
 rviz2
 ```
 
-`printenv ROS_DISTRO` should report `jazzy`, and RViz2 should open. Close RViz2
-before continuing.
+`printenv ROS_DISTRO` should report:
 
-Install the packages used by this exercise if they are not already present:
+```text
+jazzy
+```
+
+RViz2 should open.
+
+Close RViz2 before continuing.
+
+### Install the packages used by this exercise
+
+Install the required packages if they are not already present:
 
 ```zsh
 sudo apt update
@@ -76,11 +139,25 @@ sudo apt install \
   python3-colcon-common-extensions
 ```
 
-## 1. Create the workspace and package
+`ament_index_python` is used by the launch file to locate installed package
+resources without depending on the current terminal directory.
+
+---
+
+# 1. Create the workspace and package
 
 Create the workspace if necessary, source Jazzy, and create an `ament_cmake`
-package. Do not run the package-creation command again if the package already
-exists.
+package.
+
+### Package name
+
+The package name for this exercise is:
+
+```text
+small_robot_description
+```
+
+Do not run the package-creation command again if the package already exists.
 
 Run these commands from the **workspace root**:
 
@@ -95,7 +172,7 @@ ros2 pkg create \
   small_robot_description
 ```
 
-The important directory is now:
+The package is created under:
 
 ```text
 ros2_ws/
@@ -106,6 +183,9 @@ ros2_ws/
         └── src/
 ```
 
+The package-level `src/` directory is not required for this exercise because
+the package contains no C++ or Python nodes.
+
 Create directories for the robot description and launch file:
 
 ```zsh
@@ -113,8 +193,19 @@ cd "$HOME/ROV - HiL and SiL/ros2_ws/src/small_robot_description"
 mkdir -p launch urdf
 ```
 
-Do not create or build an `install/` directory inside `src/`. The normal colcon
-workspace layout is:
+The package should now look like:
+
+```text
+small_robot_description/
+├── CMakeLists.txt
+├── package.xml
+├── launch/
+└── urdf/
+```
+
+Do not create or build an `install/` directory inside `src/`.
+
+The normal colcon workspace layout is:
 
 ```text
 ros2_ws/
@@ -124,6 +215,20 @@ ros2_ws/
 └── src/
     └── small_robot_description/
 ```
+
+### Important: colcon working directory
+
+Always run `colcon build` from the **workspace root**:
+
+```text
+Correct:
+~/ROV - HiL and SiL/ros2_ws
+
+Incorrect:
+~/ROV - HiL and SiL/ros2_ws/src
+```
+
+Colcon creates `build/`, `install/` and `log/` alongside `src/`.
 
 Check that colcon can see the package before continuing:
 
@@ -141,16 +246,28 @@ small_robot_description    src/small_robot_description    (ros.ament_cmake)
 If `colcon list` returns no packages, stop here and correct the package
 location before building.
 
-## 2. Describe the robot
+---
 
-Create `urdf/small_robot.urdf.xacro` with the following contents. The dimensions
-are in metres, mass in kilograms, and the inertia entries are deliberately
-simple placeholders. They are adequate for visualisation only; do not reuse
-them for Gazebo physics without a proper mass-property calculation.
+# 2. Describe the robot
+
+Create:
+
+```text
+urdf/small_robot.urdf.xacro
+```
+
+with the following contents.
+
+The dimensions are in metres and mass is in kilograms.
+
+The inertia entries are deliberately simple placeholders. They are adequate
+for visualisation only; do not reuse them for Gazebo physics without a proper
+mass-property calculation.
 
 ```xml
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="small_robot">
+
   <xacro:property name="body_length" value="0.40"/>
   <xacro:property name="body_width" value="0.30"/>
   <xacro:property name="body_height" value="0.12"/>
@@ -176,6 +293,7 @@ them for Gazebo physics without a proper mass-property calculation.
       </geometry>
     </collision>
 
+    <!-- Placeholder mass properties: visualisation only. -->
     <inertial>
       <mass value="5.0"/>
       <inertia ixx="0.05" ixy="0.0" ixz="0.0"
@@ -184,6 +302,7 @@ them for Gazebo physics without a proper mass-property calculation.
   </link>
 
   <xacro:macro name="wheel" params="name y_position">
+
     <link name="${name}">
       <visual>
         <origin rpy="${pi/2} 0 0"/>
@@ -202,6 +321,7 @@ them for Gazebo physics without a proper mass-property calculation.
         </geometry>
       </collision>
 
+      <!-- Placeholder mass properties: visualisation only. -->
       <inertial>
         <mass value="0.5"/>
         <inertia ixx="0.002" ixy="0.0" ixz="0.0"
@@ -215,24 +335,91 @@ them for Gazebo physics without a proper mass-property calculation.
       <origin xyz="0 ${y_position} 0"/>
       <axis xyz="0 1 0"/>
     </joint>
+
   </xacro:macro>
 
   <xacro:wheel name="left_wheel" y_position="${wheel_separation / 2}"/>
   <xacro:wheel name="right_wheel" y_position="${-wheel_separation / 2}"/>
+
 </robot>
 ```
 
-The robot's coordinate convention is the ROS convention: `x` forward, `y`
-left, and `z` up. `base_link` is the root frame. The continuous wheel joints
-let RViz animate the wheels without imposing position limits.
+The robot uses the standard ROS coordinate convention:
+
+- `x` — forward;
+- `y` — left;
+- `z` — up.
+
+`base_link` is the root frame.
+
+The continuous wheel joints let RViz animate the wheels without imposing
+position limits.
 
 The chassis visual and collision geometry is offset by `wheel_radius` in `z`.
 This places the chassis above the wheel axle for this simple visual model.
 
-## 3. Validate the Xacro before building
+---
 
-Generate a URDF in `/tmp` and inspect it. This catches malformed XML and Xacro
-expressions before a launch failure obscures the cause.
+# 3. Understand the robot description
+
+Before continuing, inspect the structure of the Xacro file.
+
+The robot contains:
+
+```text
+small_robot
+│
+├── base_link
+│
+├── left_wheel
+│   └── left_wheel_joint
+│
+└── right_wheel
+    └── right_wheel_joint
+```
+
+The links describe physical parts of the robot.
+
+The joints describe how those links are connected.
+
+The resulting relationship is:
+
+```text
+base_link
+   │
+   ├── left_wheel
+   │
+   └── right_wheel
+```
+
+The wheel joints rotate about the `y` axis:
+
+```xml
+<axis xyz="0 1 0"/>
+```
+
+At this stage, the model is only a robot description.
+
+It does not contain:
+
+- propulsion;
+- motor controllers;
+- dynamics;
+- gravity;
+- buoyancy;
+- friction;
+- thruster characteristics;
+- sensor models; or
+- NATS interfaces.
+
+---
+
+# 4. Validate the Xacro before building
+
+Generate a URDF in `/tmp` and inspect it.
+
+This catches malformed XML and Xacro expressions before a launch failure
+obscures the cause.
 
 ```zsh
 cd "$HOME/ROV - HiL and SiL/ros2_ws"
@@ -245,13 +432,28 @@ ros2 run xacro xacro \
 head -n 20 /tmp/small_robot.urdf
 ```
 
-Expected result: the command exits successfully and `/tmp/small_robot.urdf`
-contains a `<robot name="small_robot">` element.
+Expected result:
 
-If Xacro reports an error, correct the source file before continuing. Do not
-continue to the build step with an invalid generated URDF.
+- the command exits successfully; and
+- `/tmp/small_robot.urdf` contains a `<robot name="small_robot">` element.
 
-## 4. Configure and install the package resources
+If Xacro reports an error, correct the source file before continuing.
+
+Do not continue to the build step with an invalid generated URDF.
+
+### Important distinction
+
+The URDF generated in `/tmp` is a **validation artefact**.
+
+The normal ROS 2 launch process will generate the robot description from the
+Xacro file when the launch file starts.
+
+The repository therefore keeps the Xacro source as the authoritative robot
+description rather than maintaining a manually edited generated URDF.
+
+---
+
+# 5. Configure and install the package resources
 
 Replace `CMakeLists.txt` with:
 
@@ -271,11 +473,17 @@ install(
 ament_package()
 ```
 
-The `install()` command is essential: without it, `ros2 launch` cannot find the
-launch file and Xacro after the package is built.
+The `install()` command is essential.
 
-Make sure `package.xml` contains the following dependencies inside `<package>`,
-before the `<export>` section:
+Without it, `ros2 launch` cannot find the launch file and Xacro after the
+package is built.
+
+---
+
+## Configure `package.xml`
+
+Make sure `package.xml` contains the following runtime dependencies inside
+`<package>`, before the `<export>` section:
 
 ```xml
 <exec_depend>ament_index_python</exec_depend>
@@ -289,17 +497,25 @@ generated by `ros2 pkg create`.
 
 The resulting package name must be `small_robot_description` throughout:
 
-- `package.xml` `<name>small_robot_description</name>`
-- `CMakeLists.txt` `project(small_robot_description)`
-- launch file package lookup
-- `colcon build --packages-select small_robot_description`
-- `ros2 launch small_robot_description display.launch.py`
+- `package.xml`:
+  `<name>small_robot_description</name>`
+- `CMakeLists.txt`:
+  `project(small_robot_description)`
+- launch file package lookup;
+- `colcon build --packages-select small_robot_description`;
+- `ros2 launch small_robot_description display.launch.py`.
 
-## 5. Add a portable launch file
+---
 
-Create `launch/display.launch.py`. It uses the installed package share directory
-rather than a path relative to the current terminal directory, so it works from
-any directory after `colcon build`.
+# 6. Add a portable launch file
+
+Create:
+
+```text
+launch/display.launch.py
+```
+
+with the following contents:
 
 ```python
 from pathlib import Path
@@ -341,19 +557,36 @@ def generate_launch_description():
     ])
 ```
 
-The function name `generate_launch_description()` is required by ROS 2. If it
-is missing or renamed, `ros2 launch` will reject the Python launch file.
+The launch file uses the installed package share directory rather than a path
+relative to the current terminal directory.
 
-## 6. Build and launch the robot
+This means the launch file can be started from any directory after the
+workspace has been built and sourced.
 
-Build only this package on the first run. Run colcon from the **workspace
-root**, not from `src/`.
+The function:
+
+```python
+generate_launch_description()
+```
+
+is required by ROS 2.
+
+If it is missing or renamed, `ros2 launch` will reject the Python launch file.
+
+---
+
+# 7. Build and launch the robot
+
+Build only this package on the first run.
+
+Run colcon from the **workspace root**, not from `src/`.
 
 ```zsh
 cd "$HOME/ROV - HiL and SiL/ros2_ws"
 source /opt/ros/jazzy/setup.zsh
 
 colcon list
+
 colcon build --packages-select small_robot_description
 
 source install/setup.zsh
@@ -361,44 +594,86 @@ source install/setup.zsh
 ros2 launch small_robot_description display.launch.py
 ```
 
-Leave that terminal running. A small joint-state publisher window should open.
-Moving either slider changes a wheel's angle, which is the intended input for
-the next inspection step.
+Leave that terminal running.
 
-## 7. Inspect the robot in RViz2
+A small joint-state publisher window should open.
+
+Moving either slider changes a wheel's angle.
+
+This is the intended input for the next inspection step.
+
+---
+
+# 8. Inspect the robot in RViz2
 
 Open a second terminal:
 
 ```zsh
 source /opt/ros/jazzy/setup.zsh
 source "$HOME/ROV - HiL and SiL/ros2_ws/install/setup.zsh"
+
 rviz2
 ```
 
 In RViz2:
 
 1. Set **Fixed Frame** to `base_link`.
-2. Click **Add**, choose **RobotModel**, and add the display.
-3. For **Description Source**, select **Topic** and use `/robot_description`
-   if it is not selected automatically.
-4. Click **Add**, choose **TF**, and add it.
-5. Move the sliders in the joint-state publisher window.
+2. Click **Add** and choose **RobotModel**.
+3. For **Description Source**, select **Topic** if it is not selected
+   automatically.
+4. Select `/robot_description` if required.
+5. Click **Add** and choose **TF**.
+6. Move the sliders in the joint-state publisher window.
 
-Expected result: a blue rectangular chassis and two black wheels appear. The TF
-display shows `base_link`, `left_wheel`, and `right_wheel`; turning a slider
-rotates the corresponding wheel.
+Expected result:
 
-## 8. Verify the ROS 2 graph
+- a blue rectangular chassis appears;
+- two black wheels appear;
+- the TF display shows `base_link`, `left_wheel` and `right_wheel`; and
+- turning a slider rotates the corresponding wheel.
 
-In a third terminal with both environments sourced, run:
+### What is actually happening?
+
+The slider is not directly controlling RViz.
+
+The data flow is:
+
+```text
+joint_state_publisher_gui
+          │
+          │ /joint_states
+          ▼
+robot_state_publisher
+          │
+          │ TF
+          ▼
+         RViz2
+```
+
+`joint_state_publisher_gui` publishes the selected joint positions.
+
+`robot_state_publisher` uses the robot description and those joint positions to
+calculate the transforms between the links.
+
+RViz2 visualises those transforms and the robot model.
+
+RViz2 is therefore **not the component calculating the robot's transforms**.
+
+---
+
+# 9. Verify the ROS 2 graph
+
+Open a third terminal with both environments sourced:
 
 ```zsh
 source /opt/ros/jazzy/setup.zsh
 source "$HOME/ROV - HiL and SiL/ros2_ws/install/setup.zsh"
+```
 
+Run:
+
+```zsh
 ros2 node list
-ros2 topic list
-ros2 run tf2_ros tf2_echo base_link left_wheel
 ```
 
 Expected nodes include:
@@ -408,35 +683,235 @@ Expected nodes include:
 /joint_state_publisher_gui
 ```
 
-Expected topics include `/joint_states` and `/tf`.
+List the active topics:
 
-`tf2_echo` should show a transform from `base_link` to `left_wheel` and update
-when its slider moves.
+```zsh
+ros2 topic list
+```
 
-Stop the exercise with `Ctrl+C` in the launch terminal, then close RViz2.
+Expected topics include:
 
-## What this has and has not proved
+```text
+/joint_states
+/tf
+/tf_static
+```
 
-This exercise proves that the VM can generate and distribute a robot
-description, calculate a transform tree, and render it in RViz2. It has not
-proved any of the following:
+Now inspect a transform directly:
 
-- Gazebo starts or renders correctly;
-- a robot has collision behaviour, gravity, traction, buoyancy, or dynamics;
-- `/cmd_vel` makes a robot move;
-- a camera, IMU, depth sensor, or thruster behaves realistically; or
-- NATS, Cockpit, Control, Datalogger, or hardware integration works.
+```zsh
+ros2 run tf2_ros tf2_echo base_link left_wheel
+```
 
-Those are separate milestones. The next exercise should add Gazebo Harmonic and
-`ros_gz` to spawn a model, then add a controller and sensors only after the
-basic simulator launch is repeatable.
+The command should show a transform from `base_link` to `left_wheel`.
 
-## Troubleshooting
+Move the left-wheel slider.
+
+The transform should update as the wheel position changes.
+
+This demonstrates that the transform exists in the ROS 2 graph independently
+of RViz2.
+
+---
+
+# 10. Inspect the generated URDF
+
+The Xacro source can also be expanded and inspected directly.
+
+Run:
+
+```zsh
+source /opt/ros/jazzy/setup.zsh
+
+ros2 run xacro xacro \
+  "$HOME/ROV - HiL and SiL/ros2_ws/src/small_robot_description/urdf/small_robot.urdf.xacro" \
+  > /tmp/small_robot.urdf
+```
+
+Inspect the generated robot:
+
+```zsh
+grep '<link ' /tmp/small_robot.urdf
+```
+
+Expected result should include:
+
+```text
+<link name="base_link">
+<link name="left_wheel">
+<link name="right_wheel">
+```
+
+Inspect the joints:
+
+```zsh
+grep '<joint ' /tmp/small_robot.urdf
+```
+
+Expected result should include:
+
+```text
+<joint name="left_wheel_joint" type="continuous">
+<joint name="right_wheel_joint" type="continuous">
+```
+
+This provides a useful distinction between:
+
+```text
+Xacro source
+    ↓
+generated URDF
+    ↓
+ROS 2 robot description
+```
+
+---
+
+# 11. Stop the exercise
+
+When the inspection is complete:
+
+1. Stop the launch file with `Ctrl+C`.
+2. Close the joint-state publisher GUI.
+3. Close RViz2.
+
+There is no need to stop or modify any system-level ROS installation.
+
+---
+
+# 12. What this exercise has proved
+
+This exercise proves that the Ubuntu HiL/SiL environment can:
+
+- create a ROS 2 package;
+- process Xacro;
+- generate a valid URDF;
+- install ROS package resources;
+- build a colcon workspace;
+- source a ROS 2 workspace overlay;
+- launch ROS 2 nodes;
+- publish joint states;
+- calculate TF transforms; and
+- visualise a robot model in RViz2.
+
+The basic toolchain is therefore:
+
+```text
+Xacro
+  ↓
+URDF
+  ↓
+robot_state_publisher
+  ↓
+TF
+  ↓
+RViz2
+```
+
+---
+
+# 13. What this exercise has not proved
+
+This exercise has **not** proved:
+
+- that Gazebo starts or renders correctly;
+- that a robot has valid collision behaviour;
+- that gravity works correctly;
+- that propulsion works;
+- that friction or traction is realistic;
+- that buoyancy works;
+- that a robot has realistic dynamics;
+- that `/cmd_vel` makes a robot move;
+- that a thruster model is valid;
+- that an IMU behaves realistically;
+- that a depth sensor behaves realistically;
+- that a camera works;
+- that NATS works;
+- that the NATS/ROS 2 bridge works;
+- that Cockpit works;
+- that Control works;
+- that the Datalogger works; or
+- that any physical hardware is safe.
+
+In particular:
+
+```text
+URDF/Xacro ≠ Gazebo simulation
+```
+
+A correct visual model is only the robot-description stage of the simulation
+toolchain.
+
+---
+
+# 14. Why the model is not yet suitable for physics
+
+The model contains mass and inertia values, but those values are deliberately
+simplified placeholders.
+
+They are sufficient for this visualisation exercise.
+
+They should **not** be interpreted as physically valid mass properties.
+
+Before the model is used for meaningful Gazebo dynamics, the vehicle model will
+eventually need physically justified values for quantities such as:
+
+- mass;
+- centre of mass;
+- moments of inertia;
+- collision geometry;
+- buoyancy;
+- centre of buoyancy;
+- drag;
+- thruster characteristics;
+- actuator response; and
+- other relevant environmental effects.
+
+This follows the project principle:
+
+> Start with simple, repeatable physics and increase physical realism
+> progressively.
+
+---
+
+# 15. Next milestone
+
+The next exercise should introduce **Gazebo Harmonic** and the supported ROS 2
+Gazebo integration, using `ros_gz` where appropriate.
+
+The next milestone should first prove:
+
+```text
+Xacro
+  ↓
+ROS 2
+  ↓
+ros_gz
+  ↓
+Gazebo
+  ↓
+Robot model
+```
+
+The initial Gazebo exercise should concentrate on:
+
+- starting Gazebo reliably;
+- spawning the vehicle;
+- inspecting the model;
+- confirming the ROS 2/Gazebo connection; and
+- establishing a repeatable launch process.
+
+Do not introduce NATS, Cockpit, Control, Datalogger, realistic vehicle physics
+or hardware integration until the basic Gazebo simulation is reliable.
+
+---
+
+# 16. Troubleshooting
 
 | Symptom | Likely cause | Check or correction |
 | --- | --- | --- |
 | `ros2: command not found` | Jazzy is not sourced. | Run `source /opt/ros/jazzy/setup.zsh`. |
-| `colcon list` returns no packages | The package is not under `ros2_ws/src/`, or colcon was run from the wrong directory. | Run `cd "$HOME/ROV - HiL and SiL/ros2_ws"` and check `find src -maxdepth 2 -name package.xml -print`. |
+| `colcon list` returns no packages | The package is not under `ros2_ws/src/`, or colcon was run from the wrong directory. | Run `cd "$HOME/ROV - HiL and SiL/ros2_ws"` and check the package location. |
 | `Package 'small_robot_description' not found` | The package was not built or the overlay is not sourced. | Run `colcon build --packages-select small_robot_description`, then `source install/setup.zsh`. |
 | `xacro: command not found` | The Xacro package is missing. | Install `ros-jazzy-xacro`. |
 | `ros2 launch` cannot find the launch file | `launch/` and `urdf/` were not installed. | Check `CMakeLists.txt`, rebuild, and source the overlay again. |
@@ -446,7 +921,9 @@ basic simulator launch is repeatable.
 | Build errors refer to an old description | Colcon is using stale output. | Correct the source, clean the package output if necessary, rebuild, and source the overlay in each terminal. |
 | An `install/` directory exists inside `src/` | Colcon was accidentally run from `src/`. | Remove the accidental directory and always run colcon from `ros2_ws/`. |
 
-### Clean-build recovery
+---
+
+# 17. Clean-build recovery
 
 If the workspace has become confused by an earlier package layout or stale
 build output:
@@ -468,17 +945,41 @@ accidental directory:
 rm -rf "$HOME/ROV - HiL and SiL/ros2_ws/src/install"
 ```
 
-Then return to the workspace root and rebuild.
+Then return to the workspace root and rebuild:
 
-## Extension questions
+```zsh
+cd "$HOME/ROV - HiL and SiL/ros2_ws"
+
+colcon build --packages-select small_robot_description
+
+source install/setup.zsh
+```
+
+Do not delete `/opt/ros/jazzy`.
+
+That is the system ROS installation and is separate from the workspace overlay.
+
+---
+
+# 18. Extension questions
 
 Before moving on, answer these in your own words:
 
 1. Which file contains the authoritative shape and joint relationship of the
    robot?
-2. Which node turns the robot description and joint states into TF frames?
-3. Why is a correct visual model insufficient evidence for a working simulator?
-4. Which quantities would need physically justified values before this model
-   could be used for an ROV in Gazebo?
-5. Why must later NATS bridging stay outside the ROS/Gazebo implementation
-   boundary?
+2. What does Xacro provide that plain URDF does not?
+3. What is the difference between a link and a joint?
+4. Which node publishes the robot's TF transforms?
+5. What does `joint_state_publisher_gui` actually publish?
+6. Why does moving a slider change the robot in RViz2?
+7. Why is RViz2 not responsible for calculating the robot's transforms?
+8. Why must `colcon build` be run from `ros2_ws/` rather than `ros2_ws/src/`?
+9. Why are `build/`, `install/` and `log/` outside the package directory?
+10. Why is a correct visual model insufficient evidence for a working simulator?
+11. Which quantities would need physically justified values before this model
+    could be used for meaningful Gazebo physics?
+12. What additional components are required to turn this robot description into
+    a simulated vehicle?
+13. Why should NATS remain outside this exercise?
+14. Why should the future NATS/ROS 2 bridge not make Cockpit or Control directly
+    dependent on ROS 2?
