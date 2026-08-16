@@ -1,5 +1,0 @@
-[31mCMake Error at cmake_install.cmake:46 (file):
-  file INSTALL cannot find "/home/skippy/ROV -
-  HiL-and-SiL/ros2_ws/src/small_robot/launch": No such file or directory.
-
-[0m
