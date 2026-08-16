@@ -242,7 +242,7 @@ Colcon creates `build/`, `install/` and `log/` alongside `src/`.
 Check that colcon can see the package before continuing:
 
 ```zsh
-cd "$HOME/ROV - HiL and SiL/ros2_ws"
+cd "$HOME/ROV - HiL-and-SiL/ros2_ws"
 colcon list
 ```
 
@@ -431,12 +431,12 @@ This catches malformed XML and Xacro expressions before a launch failure
 obscures the cause.
 
 ```zsh
-cd "$HOME/ROV - HiL and SiL/ros2_ws"
+cd "$HOME/ROV - HiL-and-SiL/ros2_ws"
 source /opt/ros/jazzy/setup.zsh
 
 ros2 run xacro xacro \
   src/small_robot_description/urdf/small_robot.urdf.xacro \
-  --output /tmp/small_robot.urdf
+  > /tmp/small_robot.urdf
 
 head -n 20 /tmp/small_robot.urdf
 ```
