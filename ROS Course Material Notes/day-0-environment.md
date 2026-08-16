@@ -1,29 +1,90 @@
-# Day 0 — Prepare the development environment
+# Day 0 — Build the ROS 2 / Gazebo workstation
 
 ## Objective
 
-Create an independent Ubuntu AMD64 workstation in VMware Fusion, with ROS 2 Jazzy, Gazebo Harmonic, RViz2, Git, and the required development tools.
+Create a known-good Ubuntu development and simulation environment. This is a workstation exercise, not an ROV integration exercise.
 
-## Do not select Ubuntu by recency alone
-
-Do not install the newest Ubuntu LTS simply because it is the latest release. ROS 2 distributions are released and tested against specific Ubuntu versions, and Gazebo, `ros_gz`, binary packages, and build tools depend on that compatibility. A newer Ubuntu release may have no supported ROS binaries yet, or may require source builds and unverified workarounds.
-
-Use the Ubuntu and ROS 2 pairing stated in the current ROS 2 support matrix. This course currently targets Ubuntu 24.04 LTS AMD64 with ROS 2 Jazzy and Gazebo Harmonic. If that target changes, update the course documentation and verify the complete pairing before rebuilding the VM.
+## Target
 
 ```text
-Intel MacBook Pro → VMware Fusion → Ubuntu AMD64
-                                      ├── ROS 2 Jazzy
-                                      ├── Gazebo Harmonic
-                                      ├── RViz2
-                                      └── ROV HiL/SiL workspace (~/ROV - HiL and SiL/)
+Intel MacBook Pro
+    ↓
+VMware Fusion
+    ↓
+Ubuntu 24.04 LTS AMD64
+    ├── ROS 2 Jazzy
+    ├── Gazebo Harmonic
+    ├── RViz2
+    ├── ros_gz
+    ├── colcon
+    └── Git / SSH
 ```
 
-Verify the installation with:
+Use the ROS-supported Ubuntu/ROS pairing. Do not select an Ubuntu release simply because it is newer.
 
-```bash
+## VM baseline
+
+Start with approximately:
+
+- 4 CPU cores;
+- 6–8 GB RAM where the host permits;
+- 60–80 GB dynamically allocated disk;
+- bridged networking when direct LAN communication is required; and
+- 3D acceleration enabled initially.
+
+The VM is the HiL/SiL environment boundary. Do not install Cockpit, Control or Datalogger application runtimes here.
+
+## Shell
+
+Use ZSH for ROS work:
+
+```zsh
+source /opt/ros/jazzy/setup.zsh
+```
+
+If required, persist it with:
+
+```zsh
+echo 'source /opt/ros/jazzy/setup.zsh' >> ~/.zshrc
+source ~/.zshrc
+```
+
+## Verification
+
+Check:
+
+```zsh
+printenv ROS_DISTRO
 ros2 --help
-gz sim
 rviz2
+gz sim
 ```
 
-Do not connect the Raspberry Pi or real propulsion at this stage.
+`ROS_DISTRO` should report `jazzy`.
+
+## Development tools
+
+Install the required tools using the current ROS 2 Jazzy installation instructions. Avoid unnecessary system changes and do not use `apt autoremove` as a routine step; it is only a cleanup operation when packages are no longer required.
+
+## Workspace
+
+Create the project workspace:
+
+```zsh
+mkdir -p "$HOME/ROV - HiL and SiL/ros2_ws/src"
+```
+
+Do not build from `ros2_ws/src`; colcon must be run from `ros2_ws`.
+
+## Day 0 exit criteria
+
+- [ ] Ubuntu 24.04 LTS AMD64 is running reliably in VMware Fusion.
+- [ ] ROS 2 Jazzy is sourced successfully with ZSH.
+- [ ] RViz2 starts.
+- [ ] Gazebo starts.
+- [ ] `colcon` is available.
+- [ ] Git and SSH are available.
+- [ ] The HiL/SiL workspace can be created.
+- [ ] The VM is in a known-good state suitable for a baseline snapshot.
+
+After the exit criteria pass, take a VMware snapshot.

@@ -1,36 +1,46 @@
-# ROV HiL/SiL course material
+# ROS 2 / Gazebo Course for the ROV HiL/SiL Project
 
-This directory contains the staged training course for the independent ROV HiL/SiL environment. Complete the days in order.
+## Purpose
 
-## Course sequence
+This is a personal engineering learning path for Philip McGaw. It is not a generic ROS 2 course. The objective is to learn only the ROS 2, Gazebo and NATS concepts required to build and verify the ROV HiL/SiL environment.
 
-| Order | Guide | Outcome |
-| --- | --- | --- |
-| Day 0 | [Prepare the development environment](day-0-environment.md) | Establish Ubuntu, ROS 2, Gazebo, RViz2, Git, and the workspace. |
-| Day 0.5 | [NATS networking](day-0-5-nats-networking.md) | Prove the network path to the Raspberry Pi NATS Core server. |
-| Day 1 | [ROS 2 fundamentals](day-1-ros-fundamentals.md) | Learn nodes, topics, messages, services, actions, parameters, and launch files. |
-| Day 2 | [ROS 2 packages, messages, and launch](day-2-ros-packages.md) | Build packages and establish ROV message and unit conventions. |
-| Day 3 | [Gazebo](day-3-gazebo.md) | Load a simple underwater vehicle model and verify basic movement. |
-| Day 4 | [Sensors and actuators](day-4-sensors-actuators.md) | Create the simulated command → actuator → motion → sensor loop. |
-| Day 5 | [Cameras and the ROV environment](day-5-cameras-environment.md) | Add a useful camera and underwater environment. |
-| Day 6 | [NATS and ROS 2](day-6-nats-ros2.md) | Bridge the established NATS contract to ROS 2 topics. |
-| Day 7 | [HiL/SiL test scenarios](day-7-hil-sil.md) | Create repeatable integration tests and evidence. |
+The course is deliberately build-and-prove oriented. Each day introduces one layer, establishes a working result, and states what has and has not been demonstrated.
+
+## Architecture boundary
+
+The HiL/SiL repository runs independently in an Ubuntu VM or dedicated Ubuntu machine. The physical ROV and Raspberry Pi controller are initially out of scope. Later, a real Raspberry Pi robot may exchange the same NATS data with the HiL/SiL environment.
+
+Cockpit provides control. Internal application communication uses NATS Core. Camera/video is carried by the appropriate HTTP/video interface rather than NATS. Datalogger is a separate repository and is not implemented here; it records sensor/operational data and may ultimately record NATS traffic as a black-box recorder. JetStream is not part of the system.
+
+## Course order
+
+| Stage | Lesson | Result |
+|---|---|---|
+| Day 0 | Workstation | Known-good Ubuntu, ROS 2 Jazzy, Gazebo Harmonic, RViz2 and colcon environment |
+| Day 0.5 | NATS networking | Working NATS Core network without requiring the physical ROV |
+| Day 1 | Robot description | Xacro → URDF → TF → RViz2 |
+| Day 2 | ROS 2 fundamentals | Nodes, topics, services, parameters, launch and QoS |
+| Day 3 | Gazebo | Simple model running through ROS 2/Gazebo integration |
+| Day 4 | Vehicle model | Vehicle, thrusters and progressively more realistic motion |
+| Day 5 | Sensors and camera | IMU, depth, heading and simulated camera |
+| Day 6 | NATS ↔ ROS 2 bridge | Application contract mapped to ROS 2 without exposing ROS to Cockpit/Control |
+| Day 7 | HiL/SiL scenarios | Repeatable integration tests and evidence |
+
+## Exit-criteria principle
+
+A day is complete when its practical checks pass. Reading the material is not itself evidence of a working system.
 
 ## Setup companions
 
-These are supporting installation notes, not additional course days:
+- `01_VMware_fusion.md` — detailed VMware Fusion and Ubuntu workstation setup.
+- `architecture.md` — current system architecture and boundaries.
 
-- [VMware Fusion workstation notes](01_VMware_fusion.md)
-- [Detailed ROS 2/Gazebo installation walkthrough](02_thing.md)
+Historical material has been removed from the main learning path where it duplicates the current setup.
 
-Use Day 0 as the concise course entry point. The companion documents overlap and their commands must be checked against current official Ubuntu, ROS 2, and Gazebo documentation.
-
-## Learning dependency
+## Dependencies
 
 ```text
-Day 0 → Day 0.5 → Days 1–2 → Days 3–5 → Day 6 → Day 7
+Day 0 → Day 0.5 → Day 1 → Day 2 → Day 3 → Day 4 → Day 5 → Day 6 → Day 7
 ```
 
-Day 0.5 deliberately precedes Day 6 so network and NATS operation are proven before ROS 2 bridge work begins.
-
-The guides describe the intended sequence; they do not by themselves prove automated, bench, physical, or production validation.
+Day 0.5 is deliberately before Day 6 so NATS networking is understood independently of ROS integration.
