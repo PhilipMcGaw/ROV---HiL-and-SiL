@@ -1,0 +1,45 @@
+[0.022s] Invoking command in '/home/skippy/ROV - HiL-and-SiL/ros2_ws/src/build/small_robot_description': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/jazzy /usr/bin/cmake /home/skippy/ROV - HiL-and-SiL/ros2_ws/src/small_robot_description -DCMAKE_INSTALL_PREFIX=/home/skippy/ROV - HiL-and-SiL/ros2_ws/src/install/small_robot_description
+[0.128s] -- The C compiler identification is GNU 13.3.0
+[0.247s] -- The CXX compiler identification is GNU 13.3.0
+[0.284s] -- Detecting C compiler ABI info
+[0.469s] -- Detecting C compiler ABI info - done
+[0.485s] -- Check for working C compiler: /usr/bin/cc - skipped
+[0.485s] -- Detecting C compile features
+[0.486s] -- Detecting C compile features - done
+[0.505s] -- Detecting CXX compiler ABI info
+[0.709s] -- Detecting CXX compiler ABI info - done
+[0.731s] -- Check for working CXX compiler: /usr/bin/c++ - skipped
+[0.732s] -- Detecting CXX compile features
+[0.734s] -- Detecting CXX compile features - done
+[0.744s] -- Found ament_cmake: 2.5.6 (/opt/ros/jazzy/share/ament_cmake/cmake)
+[1.069s] -- Found Python3: /usr/bin/python3 (found version "3.12.3") found components: Interpreter 
+[1.283s] -- Found robot_state_publisher: 3.3.4 (/opt/ros/jazzy/share/robot_state_publisher/cmake)
+[1.371s] -- Found rosidl_generator_c: 4.6.9 (/opt/ros/jazzy/share/rosidl_generator_c/cmake)
+[1.401s] -- Found rosidl_generator_cpp: 4.6.9 (/opt/ros/jazzy/share/rosidl_generator_cpp/cmake)
+[1.434s] -- Using all available rosidl_typesupport_c: rosidl_typesupport_fastrtps_c;rosidl_typesupport_introspection_c
+[1.473s] -- Using all available rosidl_typesupport_cpp: rosidl_typesupport_fastrtps_cpp;rosidl_typesupport_introspection_cpp
+[1.661s] -- Found rmw_implementation_cmake: 7.3.3 (/opt/ros/jazzy/share/rmw_implementation_cmake/cmake)
+[1.668s] -- Found rmw_fastrtps_cpp: 8.4.4 (/opt/ros/jazzy/share/rmw_fastrtps_cpp/cmake)
+[1.835s] -- Found OpenSSL: /usr/lib/x86_64-linux-gnu/libcrypto.so (found version "3.0.13")  
+[1.868s] -- Found FastRTPS: /opt/ros/jazzy/include (Required is at least version "2.13") 
+[1.908s] -- Using RMW implementation 'rmw_fastrtps_cpp' as default
+[2.485s] -- Found xacro: 2.1.1 (/opt/ros/jazzy/share/xacro/cmake)
+[2.503s] [31mCMake Error at CMakeLists.txt:12 (find_package):
+[2.504s]   By not providing "Findament_index_python.cmake" in CMAKE_MODULE_PATH this
+[2.504s]   project has asked CMake to find a package configuration file provided by
+[2.504s]   "ament_index_python", but CMake did not find one.
+[2.504s] 
+[2.504s]   Could not find a package configuration file provided by
+[2.504s]   "ament_index_python" with any of the following names:
+[2.505s] 
+[2.505s]     ament_index_pythonConfig.cmake
+[2.505s]     ament_index_python-config.cmake
+[2.505s] 
+[2.505s]   Add the installation prefix of "ament_index_python" to CMAKE_PREFIX_PATH or
+[2.505s]   set "ament_index_python_DIR" to a directory containing one of the above
+[2.505s]   files.  If "ament_index_python" provides a separate development package or
+[2.505s]   SDK, be sure it has been installed.
+[2.505s] 
+[2.505s] [0m
+[2.506s] -- Configuring incomplete, errors occurred!
+[2.523s] Invoked command in '/home/skippy/ROV - HiL-and-SiL/ros2_ws/src/build/small_robot_description' returned '1': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/jazzy /usr/bin/cmake /home/skippy/ROV - HiL-and-SiL/ros2_ws/src/small_robot_description -DCMAKE_INSTALL_PREFIX=/home/skippy/ROV - HiL-and-SiL/ros2_ws/src/install/small_robot_description
