@@ -75,6 +75,10 @@ The current repository does not require the physical ROV or RPi controller to op
 
 ## 4. System Boundaries
 
+HiL/SiL runs in a dedicated virtual machine or equivalent isolated environment. It connects to a headless robot deployment, normally over the robot's NATS network, and does not replace the Cockpit, Control, or Datalogger services installed on the robot Raspberry Pi. The robot Pi remains the deployment host for those three separate services; the VM provides simulation, integration-test, and headless test capabilities.
+
+The VM connects through the same NATS Core application boundary used by Cockpit, Control, and Datalogger. It must preserve the robot namespace and message contracts when simulating or observing a headless robot.
+
 The HiL/SiL environment is deliberately independent of the other ROV repositories.
 
 This repository does **not** contain:
@@ -612,6 +616,8 @@ The simulator must not be treated as a substitute for physical safety testing.
 ---
 
 ## 20. Documentation and Change Control
+
+The HiL/SiL environment shall exercise the same versioned JSON robot profiles and namespaced logical command contracts as the real robot deployments. Functional ROV, K9, and PiWars profiles shall be usable with mock or simulated Controller behaviour where physical hardware is unavailable. Simulation shall not introduce a second application-facing contract.
 
 The enforceable documentation policy is:
 
