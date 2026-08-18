@@ -90,7 +90,7 @@ This exercise assumes ZSH.
 
 Use `setup.zsh` when sourcing ROS or the workspace overlay.
 
-Do not substitute `setup.bash`.
+Use the Zsh setup files consistently for the system installation and workspace overlay.
 
 ---
 
@@ -135,6 +135,9 @@ sudo apt install \
   ros-jazzy-xacro \
   ros-jazzy-robot-state-publisher \
   ros-jazzy-joint-state-publisher-gui \
+  ros-jazzy-launch \
+  ros-jazzy-launch-ros \
+  ros-jazzy-rviz2 \
   ros-jazzy-ament-index-python \
   python3-colcon-common-extensions
 ```
@@ -169,7 +172,7 @@ source /opt/ros/jazzy/setup.zsh
 ros2 pkg create \
   small_robot_description \
   --build-type ament_cmake \
-  --dependencies robot_state_publisher xacro ament_index_python
+  --dependencies robot_state_publisher xacro ament_index_python launch launch_ros
 ```
 
 After that, for colcon, return to the workspace root:
@@ -496,6 +499,8 @@ Make sure `package.xml` contains the following runtime dependencies inside
 
 ```xml
 <exec_depend>ament_index_python</exec_depend>
+<exec_depend>launch</exec_depend>
+<exec_depend>launch_ros</exec_depend>
 <exec_depend>robot_state_publisher</exec_depend>
 <exec_depend>joint_state_publisher_gui</exec_depend>
 <exec_depend>xacro</exec_depend>

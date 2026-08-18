@@ -16,15 +16,15 @@ Cockpit provides control. Internal application communication uses NATS Core. Cam
 
 | Stage - Lesson | Result |
 |------|---|
-| [Day 0 — Workstation Setup](day-0-environment.md) | Known-good Ubuntu, ROS 2 Jazzy, Gazebo Harmonic, RViz2 and colcon environment |
-| [Day 0.5 — NATS Networking](day-0-5-nats-networking.md) | Working NATS Core network without requiring the physical ROV |
-| [Day 1 — Robot Description](day-1-robot-description.md) | Xacro → URDF → TF → RViz2 |
-| [Day 2 — ROS 2 Fundamentals](day-2-ros2-fundamentals.md) | Nodes, topics, services, parameters, launch and QoS |
-| [Day 3 — Gazebo](day-3-gazebo.md) | Simple model running through ROS 2/Gazebo integration |
-| [Day 4 — Vehicle Model](day-4-vehicle-model.md) | Vehicle, thrusters and progressively more realistic motion |
-| [Day 5 — Sensors and Camera](day-5-sensors-and-camera.md) | IMU, depth, heading and simulated camera |
-| [Day 6 — NATS ↔ ROS 2 Bridge](day-6-nats-ros2-bridge.md) | Application contract mapped to ROS 2 without exposing ROS to Cockpit/Control |
-| [Day 7 — HiL/SiL Scenarios](day-7-hil-sil-scenarios.md) | Repeatable integration tests and evidence |
+| [Day 1 — Workstation Setup](01-environment.md) | Known-good Ubuntu, ROS 2 Jazzy, Gazebo Harmonic, RViz2 and colcon environment |
+| [Day 2 — NATS Networking](02-nats-networking.md) | Working NATS Core network without requiring the physical ROV |
+| [Day 3 — Robot Description](03-robot-description.md) | Xacro → URDF → TF → RViz2 |
+| [Day 4 — ROS 2 Fundamentals](04-ros2-fundamentals.md) | Nodes, topics, services, parameters, launch and QoS |
+| [Day 5 — Gazebo](05-gazebo.md) | Simple model running through ROS 2/Gazebo integration |
+| [Day 6 — Vehicle Model](06-vehicle-model.md) | Vehicle, thrusters and progressively more realistic motion |
+| [Day 7 — Sensors and Camera](07-sensors-and-camera.md) | IMU, depth, heading and simulated camera |
+| [Day 8 — NATS ↔ ROS 2 Bridge](08-nats-ros2-bridge.md) | Application contract mapped to ROS 2 without exposing ROS to Cockpit/Control |
+| [Day 9 — HiL/SiL Scenarios](09-hil-sil-scenarios.md) | Repeatable integration tests and evidence |
 
 
 ## Exit-criteria principle
@@ -34,7 +34,7 @@ A day is complete when its practical checks pass. Reading the material is not it
 ## Supporting Material
 
 - [Architecture](docs/architecture.md)
-- [VMware Fusion Setup](01_VMware_fusion.md)
+- [VMware Fusion Setup](00-vmware-fusion.md)
 
 
 Historical material has been removed from the main learning path where it duplicates the current setup.

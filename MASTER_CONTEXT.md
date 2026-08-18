@@ -1,5 +1,7 @@
 # ROV HiL and SiL Master Context
 
+Interactive command examples in this repository assume Zsh. Use ROS `setup.zsh` and workspace `local_setup.zsh` files in commands and lessons. Executable scripts may use another interpreter only when it is declared by the script's shebang and documented accordingly.
+
 ## 1. Purpose
 
 The **ROV - HiL and SiL** repository provides an independent simulation and integration-test environment for the ROV project.

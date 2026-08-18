@@ -15,7 +15,7 @@ Target software:
 
 The detailed installation notes are retained in `ROS Course Material Notes/`. They are working notes and may contain observations from the actual installation; verify package availability against the selected Ubuntu/ROS release before automating setup.
 
-The first milestone is a working ROS 2 and Gazebo installation, followed by a trivial simulated model. The MQTT bridge should be added only after the local simulation pipeline is proven.
+The first milestone is a working ROS 2 and Gazebo installation, followed by a trivial simulated model. The NATS/ROS 2 bridge should be added only after the local simulation pipeline is proven.
 # Ubuntu and ROS compatibility
 
 ## Repository location

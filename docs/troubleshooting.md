@@ -5,7 +5,7 @@
 Source the ROS environment:
 
 ```bash
-source /opt/ros/jazzy/setup.bash
+source /opt/ros/jazzy/setup.zsh
 ```
 
 ## Gazebo is slow or unstable

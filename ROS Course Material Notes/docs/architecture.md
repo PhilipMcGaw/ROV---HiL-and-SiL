@@ -36,7 +36,7 @@ Cockpit ── NATS Core ── Control ── NATS Core ── HiL/SiL bridge �
 
 For offline SiL, Cockpit, Control and Datalogger may be virtualised, but they should run in separate Ubuntu boxes/VMs rather than inside the HiL/SiL machine itself. They use the same NATS network.
 
-The HiL/SiL machine owns the simulated vehicle models. Simulated vehicles live beneath a `Vehicle/` directory in this repository.
+The HiL/SiL machine owns the simulated vehicle models. Simulated vehicle packages live beneath `ros2_ws/src/` in this repository.
 
 ## Real hardware later
 

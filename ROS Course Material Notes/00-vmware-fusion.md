@@ -19,7 +19,7 @@ The guide deliberately avoids personal usernames and machine-specific paths. Use
 - Git / SSH
 - NATS client connectivity for the HIL/SIL architecture
 
-The VM is a HIL/SIL workstation. It does not host the Cockpit, Control, or DataLogger application runtimes.
+The VM is a HiL/SiL workstation. It does not host the Cockpit, Control, or Datalogger application runtimes.
 
 ---
 
@@ -228,11 +228,11 @@ sudo apt autoremove
 
 # 9. Configure the ROS environment
 
-For Bash:
+For Zsh:
 
-```bash
-echo "source /opt/ros/jazzy/setup.bash" >> ~/.bashrc
-source ~/.bashrc
+```zsh
+echo "source /opt/ros/jazzy/setup.zsh" >> ~/.zshrc
+source ~/.zshrc
 ```
 
 For Zsh:
