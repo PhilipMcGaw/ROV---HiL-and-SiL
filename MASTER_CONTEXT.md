@@ -4,7 +4,7 @@ Interactive command examples in this repository assume Zsh. Use ROS `setup.zsh` 
 
 ## 1. Purpose
 
-The **ROV - HiL and SiL** repository provides an independent simulation and integration-test environment for the ROV project.
+The **ROV---HiL-and-SiL** repository provides an independent simulation and integration-test environment for the ROV project.
 
 It allows the ROV software and associated systems to be developed and tested without requiring the physical ROV. It supports:
 
@@ -28,10 +28,10 @@ The ROV project is divided into several repositories. Each repository has a defi
 | Repository | Responsibility |
 |---|---|
 | **ROV** | Generic project information, instructions, project-wide documentation and CAD files |
-| **ROV - Cockpit** | ROV operator cockpit software; runs on the RPi |
-| **ROV - Control** | ROV control software and hardware interface; runs on the RPi |
-| **ROV - Datalogger** | ROV sensor and operational data recording; runs on the RPi |
-| **ROV - HiL and SiL** | Independent simulation and integration-test environment; runs in an Ubuntu VM or dedicated Ubuntu machine |
+| **ROV---Cockpit** | ROV operator cockpit software; runs on the RPi |
+| **ROV---Control** | ROV control software and hardware interface; runs on the RPi |
+| **ROV---Datalogger** | ROV sensor and operational data recording; runs on the RPi |
+| **ROV---HiL-and-SiL** | Independent simulation and integration-test environment; runs in an Ubuntu VM or dedicated Ubuntu machine |
 | **ROV - Conductivity Temperature and Depth Transducer** | CTD electronics and KiCad design |
 | **ROV - Light Module** | ROV lighting electronics and KiCad design |
 
@@ -39,7 +39,7 @@ The repositories are developed independently but communicate through defined int
 
 The **ROV** repository provides generic project-level information and is the appropriate location for project-wide interface definitions and architectural information.
 
-The **ROV - HiL and SiL** repository must not become the source of truth for the implementation of the real ROV.
+The **ROV---HiL-and-SiL** repository must not become the source of truth for the implementation of the real ROV.
 
 ---
 
@@ -430,7 +430,7 @@ All development and runtime environments for this project shall remain within Ub
 The intended repository structure is:
 
 ```text
-ROV - HiL and SiL/
+ROV---HiL-and-SiL/
 │
 ├── .github/
 │
