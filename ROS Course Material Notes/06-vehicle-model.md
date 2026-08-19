@@ -9,7 +9,7 @@ Create the first ROV-like vehicle and establish a simple, measurable command-to-
 Simulated vehicles will live in this repository under the ROS 2 workspace, normally beneath `ros2_ws/src/`.
 
 ```text
-ROV - HiL and SiL/
+ROV---HiL-and-SiL/
 ├── ros2_ws/src/
 │   └── ROV/
 ├── ros2_ws/

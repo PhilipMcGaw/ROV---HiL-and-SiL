@@ -596,7 +596,7 @@ Build only this package on the first run.
 Run colcon from the **workspace root**, not from `src/`.
 
 ```zsh
-cd "$HOME/ROV - HiL and SiL/ros2_ws"
+cd "$HOME/robots/ROV---HiL-and-SiL/ros2_ws"
 source /opt/ros/jazzy/setup.zsh
 
 colcon list
@@ -624,7 +624,7 @@ Open a second terminal:
 
 ```zsh
 source /opt/ros/jazzy/setup.zsh
-source "$HOME/ROV - HiL and SiL/ros2_ws/install/setup.zsh"
+source "$HOME/robots/ROV---HiL-and-SiL/ros2_ws/install/setup.zsh"
 
 rviz2
 ```
@@ -681,7 +681,7 @@ Open a third terminal with both environments sourced:
 
 ```zsh
 source /opt/ros/jazzy/setup.zsh
-source "$HOME/ROV - HiL and SiL/ros2_ws/install/setup.zsh"
+source "$HOME/robots/ROV---HiL-and-SiL/ros2_ws/install/setup.zsh"
 ```
 
 Run:
@@ -738,7 +738,7 @@ Run:
 source /opt/ros/jazzy/setup.zsh
 
 ros2 run xacro xacro \
-  "$HOME/ROV - HiL and SiL/ros2_ws/src/small_robot_description/urdf/small_robot.urdf.xacro" \
+  "$HOME/robots/ROV---HiL-and-SiL/ros2_ws/src/small_robot_description/urdf/small_robot.urdf.xacro" \
   > /tmp/small_robot.urdf
 ```
 
@@ -925,7 +925,7 @@ or hardware integration until the basic Gazebo simulation is reliable.
 | Symptom | Likely cause | Check or correction |
 | --- | --- | --- |
 | `ros2: command not found` | Jazzy is not sourced. | Run `source /opt/ros/jazzy/setup.zsh`. |
-| `colcon list` returns no packages | The package is not under `ros2_ws/src/`, or colcon was run from the wrong directory. | Run `cd "$HOME/ROV - HiL and SiL/ros2_ws"` and check the package location. |
+| `colcon list` returns no packages | The package is not under `ros2_ws/src/`, or colcon was run from the wrong directory. | Run `cd "$HOME/robots/ROV---HiL-and-SiL/ros2_ws"` and check the package location. |
 | `Package 'small_robot_description' not found` | The package was not built or the overlay is not sourced. | Run `colcon build --packages-select small_robot_description`, then `source install/setup.zsh`. |
 | `xacro: command not found` | The Xacro package is missing. | Install `ros-jazzy-xacro`. |
 | `ros2 launch` cannot find the launch file | `launch/` and `urdf/` were not installed. | Check `CMakeLists.txt`, rebuild, and source the overlay again. |
@@ -943,7 +943,7 @@ If the workspace has become confused by an earlier package layout or stale
 build output:
 
 ```zsh
-cd "$HOME/ROV - HiL and SiL/ros2_ws"
+cd "$HOME/robots/ROV---HiL-and-SiL/ros2_ws"
 
 rm -rf build install log
 
@@ -956,13 +956,13 @@ If an accidental `src/install` directory was created, remove only that
 accidental directory:
 
 ```zsh
-rm -rf "$HOME/ROV - HiL and SiL/ros2_ws/src/install"
+rm -rf "$HOME/robots/ROV---HiL-and-SiL/ros2_ws/src/install"
 ```
 
 Then return to the workspace root and rebuild:
 
 ```zsh
-cd "$HOME/ROV - HiL and SiL/ros2_ws"
+cd "$HOME/robots/ROV---HiL-and-SiL/ros2_ws"
 
 colcon build --packages-select small_robot_description
 

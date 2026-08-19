@@ -7,16 +7,16 @@ ROV
 ├── generic project information and instructions
 └── CAD and design material
 
-ROV - Cockpit
+ROV---Cockpit
 └── Cockpit software; normally runs on the Raspberry Pi
 
-ROV - Control
+ROV---Control
 └── Control software; interfaces application commands with hardware
 
-ROV - Datalogger
+ROV---Datalogger
 └── Data recording service; normally runs on the Raspberry Pi
 
-ROV - HiL and SiL
+ROV---HiL-and-SiL
 └── Offline simulation and hardware-in-the-loop environment
 
 ROV - Conductivity Temperature and Depth Transducer

@@ -20,7 +20,7 @@ The first milestone is a working ROS 2 and Gazebo installation, followed by a tr
 
 ## Repository location
 
-On the Linux VM, clone the HiL/SiL repository directly below the VM user's home directory as `~/ROV - HiL and SiL`. On macOS, use a user-selected workspace beneath the home directory, for example `~/Projects/ROV/ROV - HiL and SiL`. Keep the other ROV repositories as sibling directories where they are needed. These locations are documented defaults; scripts and ROS workspace commands must remain usable if the repository is moved.
+On the Linux VM, clone the HiL/SiL repository below the VM user's home directory as `~/robots/ROV---HiL-and-SiL`. On macOS, use a user-selected workspace beneath the home directory, for example `~/Projects/ROV/ROV---HiL-and-SiL`. Keep the other ROV repositories as sibling directories where they are needed. These locations are documented defaults; scripts and ROS workspace commands must remain usable if the repository is moved.
 
 Do not choose the newest Ubuntu LTS automatically when preparing a ROS workstation. ROS 2 distributions support defined Ubuntu releases, and the supported pairing determines whether ROS packages, Gazebo, `ros_gz`, RViz2, and `colcon` can be installed and used consistently.
 
