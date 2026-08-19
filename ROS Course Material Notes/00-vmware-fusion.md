@@ -503,7 +503,7 @@ Ubuntu VM
 └── NATS client
 ```
 
-**NATS is the chosen communication middleware. MQTT is not used.**
+**NATS is the chosen communication middleware.**
 
 NATS should be treated as an explicit part of the project architecture, not as an undecided future transport. The VM uses a NATS client; the NATS server/source of truth is associated with the Raspberry Pi when hardware is introduced.
 

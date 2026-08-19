@@ -2,6 +2,8 @@
 
 Documentation is an engineering deliverable and must be updated in the same change as the behaviour it describes.
 
+This is a hard completion requirement, not an optional follow-up. A behaviour-affecting change is incomplete until the same change set contains the relevant documentation updates and, where applicable, an updated `MASTER_CONTEXT.md`. Obsolete contradictory documentation must be corrected or removed. “To be documented later” is not an acceptable completion state.
+
 ## Mandatory updates
 
 Update the relevant documentation whenever a change affects user-visible behaviour, APIs, configuration, hardware support, safety behaviour, deployment, data formats, tests, workflows, or frontend architecture. Update `MASTER_CONTEXT.md` whenever architecture, project boundaries, operating conventions, or validation status changes.
